@@ -14,21 +14,11 @@
  */
 package com.mobiperf.util;
 
-import com.mobiperf.DeviceInfo;
-import com.mobiperf.DeviceProperty;
-import com.mobiperf.Logger;
-import com.mobiperf.MeasurementCreationActivity;
-import com.mobiperf.R;
-
-
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -49,7 +39,6 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings.Secure;
-import android.support.v4.app.ActivityCompat;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -57,6 +46,12 @@ import android.telephony.TelephonyManager;
 import android.view.Display;
 import android.view.WindowManager;
 import android.webkit.WebView;
+
+import com.mobiperf.DeviceInfo;
+import com.mobiperf.DeviceProperty;
+import com.mobiperf.Logger;
+import com.mobiperf.MeasurementCreationActivity;
+import com.mobiperf.R;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -68,13 +63,8 @@ import java.net.UnknownHostException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
-
-import static android.Manifest.permission.*;
-import static com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION;
-import static com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION;
 
 
 /**
@@ -365,7 +355,7 @@ public class PhoneUtils {
   public String getCellInfo(boolean cidOnly) {
     initNetwork();
     List<NeighboringCellInfo> infos = null;
-    if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_COARSE_LOCATION))
+    if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION))
       infos = telephonyManager.getNeighboringCellInfo();
 
     StringBuffer buf = new StringBuffer();
@@ -425,7 +415,7 @@ public class PhoneUtils {
        * device powercycle may not update it.
        * {@see android.location.LocationManager.getLastKnownLocation}.
        */
-      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_FINE_LOCATION) && MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_COARSE_LOCATION)) {
+      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION)) {
         manager.requestLocationUpdates(providerName,
                 /*minTime=*/0,
                 /*minDistance=*/0,
@@ -449,7 +439,7 @@ public class PhoneUtils {
     try {
       initLocation();//we asked for the permissions from here
       Location location = null;
-      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_COARSE_LOCATION) && MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_FINE_LOCATION)) {
+      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION)) {
           location = locationManager.getLastKnownLocation(locationProviderName);
           Logger.i("Got the location object");
       }
