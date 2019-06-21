@@ -355,7 +355,7 @@ public class PhoneUtils {
   public String getCellInfo(boolean cidOnly) {
     initNetwork();
     List<NeighboringCellInfo> infos = null;
-    if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION))
+    if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION))
       infos = telephonyManager.getNeighboringCellInfo();
 
     StringBuffer buf = new StringBuffer();
@@ -415,7 +415,7 @@ public class PhoneUtils {
        * device powercycle may not update it.
        * {@see android.location.LocationManager.getLastKnownLocation}.
        */
-      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION)) {
+      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION)) {
         manager.requestLocationUpdates(providerName,
                 /*minTime=*/0,
                 /*minDistance=*/0,
@@ -439,7 +439,7 @@ public class PhoneUtils {
     try {
       initLocation();//we asked for the permissions from here
       Location location = null;
-      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION)) {
+      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION)) {
           location = locationManager.getLastKnownLocation(locationProviderName);
           Logger.i("Got the location object");
       }

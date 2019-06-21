@@ -449,9 +449,9 @@ public class MeasurementCreationActivity extends Activity {
             != PackageManager.PERMISSION_GRANTED)
       list.add(Manifest.permission.READ_PHONE_STATE);
     if (ContextCompat.checkSelfPermission(getInstance(),
-            Manifest.permission.ACCESS_FINE_LOCATION)
+            Manifest.permission.ACCESS_COARSE_LOCATION)
             != PackageManager.PERMISSION_GRANTED)
-      list.add(Manifest.permission.ACCESS_FINE_LOCATION);
+      list.add(Manifest.permission.ACCESS_COARSE_LOCATION);
     if(list.size()>0){
       String [] temp = new String[list.size()];
       for (int i = 0; i < list.size(); i++) {
