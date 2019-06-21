@@ -60,6 +60,11 @@
     <string name="TCPThroughputTargetHint">m-lab</string>
     <string name="channel_name">Speedometer Category</string>
     <string name="channel_description" />
+    <string name="scheduled">Scheduled</string>
+    <string name="manual">Manual</string>
+    <string name="system_log_console">System Log Console</string>
+    <string name="radio_Down">Down</string>
+    <string name="radio_Up">Up</string>
 
 
 </resources>

@@ -585,7 +585,7 @@ public class TCPThroughputTask extends MeasurementTask {
    * Helper functions
    *****************************************************************
    * update the total received packet size
-   * @param time period increment
+   * @param delta period increment
    */
   private void updateSize(int delta) {
     double gtime = System.currentTimeMillis() - this.taskStartTime;

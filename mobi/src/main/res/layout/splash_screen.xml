@@ -14,6 +14,6 @@
     android:layout_height="wrap_content"
     android:text=""
     android:layout_gravity="bottom"
-    android:gravity="right"
-    android:textSize="20dp" />
+    android:gravity="end"
+    android:textSize="20sp" />
 </FrameLayout>

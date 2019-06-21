@@ -17,13 +17,18 @@ package com.mobiperf.util;
 import com.mobiperf.DeviceInfo;
 import com.mobiperf.DeviceProperty;
 import com.mobiperf.Logger;
+import com.mobiperf.MeasurementCreationActivity;
 import com.mobiperf.R;
 
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -44,6 +49,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings.Secure;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -62,8 +68,13 @@ import java.net.UnknownHostException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
+
+import static android.Manifest.permission.*;
+import static com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION;
+import static com.mobiperf.Config.PERMISSION_IDS.ACCESS_FINE_LOCATION;
 
 
 /**
@@ -80,7 +91,7 @@ public class PhoneUtils {
   public static final String IP_TYPE_IPV4_ONLY = "IPv4 only";
   public static final String IP_TYPE_IPV6_ONLY = "IPv6 only";
   public static final String IP_TYPE_IPV4_IPV6_BOTH = "IPv4 and IPv6";
-  
+
   /**
    * The app that uses this class. The app must remain alive for longer than
    * PhoneUtils objects are in use.
@@ -109,30 +120,30 @@ public class PhoneUtils {
 
   /** Call initNetworkManager() before using this var. */
   private TelephonyManager telephonyManager = null;
-  
+
   /** Tells whether the phone is charging */
   private boolean isCharging;
-  /** Current battery level in percentage */ 
+  /** Current battery level in percentage */
   private int curBatteryLevel;
   /** Receiver that handles battery change broadcast intents */
   private BroadcastReceiver powerBroadcastReceiver;
   private BroadcastReceiver networkBroadcastReceiver;
-  
+
   private int currentSignalStrength = NeighboringCellInfo.UNKNOWN_RSSI;
-  
+
   /** For monitoring the current network connection type**/
   public static int TYPE_WIFI = 1;
   public static int TYPE_MOBILE = 2;
   public static int TYPE_NOT_CONNECTED = 0;
-  private int currentNetworkConnection= TYPE_NOT_CONNECTED; 
-  
+  private int currentNetworkConnection = TYPE_NOT_CONNECTED;
+
   private DeviceInfo deviceInfo = null;
   /** IP compatibility status */
   // Indeterministic type due to client side timer expired
   private int IP_TYPE_CANNOT_DECIDE = 2;
   // Cannot resolve the hostname or cannot reach the destination address
   private int IP_TYPE_UNCONNECTIVITY = 1;
-  private int IP_TYPE_CONNECTIVITY = 0; 
+  private int IP_TYPE_CONNECTIVITY = 0;
   /** Domain name resolution status */
   private int DN_UNKNOWN = 2;
   private int DN_UNRESOLVABLE = 1;
@@ -140,19 +151,19 @@ public class PhoneUtils {
   //server configuration port on M-Lab servers 
   private int portNum = 6003;
   private int tcpTimeout = 3000;
-  
+
   protected PhoneUtils(Context context) {
     this.context = context;
     powerBroadcastReceiver = new PowerStateChangeReceiver();
     // Registers a receiver for battery change events.
-    Intent powerIntent = globalContext.registerReceiver(powerBroadcastReceiver, 
-        new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+    Intent powerIntent = globalContext.registerReceiver(powerBroadcastReceiver,
+            new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     updateBatteryStat(powerIntent);
-    
+
     networkBroadcastReceiver = new ConnectivityChangeReceiver();
     // Registers a receiver for network change events.
-    globalContext.registerReceiver(networkBroadcastReceiver, 
-        new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+    globalContext.registerReceiver(networkBroadcastReceiver,
+            new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     updateConnectivityInfo(); // does not require the intent to determine connectivity
   }
 
@@ -219,13 +230,13 @@ public class PhoneUtils {
     String device = Build.DEVICE.equals("generic") ? "emulator" : Build.DEVICE;
     String network = getNetwork();
     String carrier = (network == NETWORK_WIFI) ?
-        getWifiCarrierName() : getTelephonyCarrierName();
+            getWifiCarrierName() : getTelephonyCarrierName();
 
     StringBuilder stringBuilder = new StringBuilder(ANDROID_STRING);
     stringBuilder.append('-').append(device).append('_')
-        .append(Build.VERSION.RELEASE).append('_').append(network)
-        .append('_').append(carrier).append('_').append(getTelephonyPhoneType())
-        .append('_').append(isLandscape() ? "Landscape" : "Portrait");
+            .append(Build.VERSION.RELEASE).append('_').append(network)
+            .append('_').append(carrier).append('_').append(getTelephonyPhoneType())
+            .append('_').append(isLandscape() ? "Landscape" : "Portrait");
 
     return stringBuilder.toString();
   }
@@ -238,45 +249,45 @@ public class PhoneUtils {
   private synchronized void initNetwork() {
     if (connectivityManager == null) {
       ConnectivityManager tryConnectivityManager =
-          (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+              (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
       TelephonyManager tryTelephonyManager =
-          (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+              (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
       // Assign to member vars only after all the get calls succeeded,
       // so that either all get assigned, or none get assigned.
       connectivityManager = tryConnectivityManager;
       telephonyManager = tryTelephonyManager;
-      
+
       // Some interesting info to look at in the logs
       NetworkInfo[] infos = connectivityManager.getAllNetworkInfo();
       for (NetworkInfo networkInfo : infos) {
         Logger.i("Network: " + networkInfo);
       }
       Logger.i("Phone type: " + getTelephonyPhoneType() +
-            ", Carrier: " + getTelephonyCarrierName());
+              ", Carrier: " + getTelephonyCarrierName());
     }
     assert connectivityManager != null;
     assert telephonyManager != null;
   }
-  
+
   /**
    * This method must be called in the service thread, as the system will create a Looper in
    * the calling thread which will handle the callbacks.
    */
   public void registerSignalStrengthListener() {
     initNetwork();
-    telephonyManager.listen(new SignalStrengthChangeListener(), 
-        PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-  }  
-  
+    telephonyManager.listen(new SignalStrengthChangeListener(),
+            PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+  }
+
   /** Returns the network that the phone is on (e.g. Wifi, Edge, GPRS, etc). */
   public String getNetwork() {
     initNetwork();
     NetworkInfo networkInfo =
-      connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
     if (networkInfo != null &&
-        networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+            networkInfo.getState() == NetworkInfo.State.CONNECTED) {
       return NETWORK_WIFI;
     } else {
       return getTelephonyNetworkType();
@@ -284,21 +295,21 @@ public class PhoneUtils {
   }
 
   private static final String[] NETWORK_TYPES = {
-    "UNKNOWN",  // 0  - NETWORK_TYPE_UNKNOWN
-    "GPRS",     // 1  - NETWORK_TYPE_GPRS
-    "EDGE",     // 2  - NETWORK_TYPE_EDGE
-    "UMTS",     // 3  - NETWORK_TYPE_UMTS
-    "CDMA",     // 4  - NETWORK_TYPE_CDMA
-    "EVDO_0",   // 5  - NETWORK_TYPE_EVDO_0
-    "EVDO_A",   // 6  - NETWORK_TYPE_EVDO_A
-    "1xRTT",    // 7  - NETWORK_TYPE_1xRTT
-    "HSDPA",    // 8  - NETWORK_TYPE_HSDPA
-    "HSUPA",    // 9  - NETWORK_TYPE_HSUPA
-    "HSPA",     // 10 - NETWORK_TYPE_HSPA
-    "IDEN",     // 11 - NETWORK_TYPE_IDEN
-    "EVDO_B",   // 12 - NETWORK_TYPE_EVDO_B
-    "LTE",      // 13 - NETWORK_TYPE_LTE
-    "EHRPD",    // 14 - NETWORK_TYPE_EHRPD
+          "UNKNOWN",  // 0  - NETWORK_TYPE_UNKNOWN
+          "GPRS",     // 1  - NETWORK_TYPE_GPRS
+          "EDGE",     // 2  - NETWORK_TYPE_EDGE
+          "UMTS",     // 3  - NETWORK_TYPE_UMTS
+          "CDMA",     // 4  - NETWORK_TYPE_CDMA
+          "EVDO_0",   // 5  - NETWORK_TYPE_EVDO_0
+          "EVDO_A",   // 6  - NETWORK_TYPE_EVDO_A
+          "1xRTT",    // 7  - NETWORK_TYPE_1xRTT
+          "HSDPA",    // 8  - NETWORK_TYPE_HSDPA
+          "HSUPA",    // 9  - NETWORK_TYPE_HSUPA
+          "HSPA",     // 10 - NETWORK_TYPE_HSPA
+          "IDEN",     // 11 - NETWORK_TYPE_IDEN
+          "EVDO_B",   // 12 - NETWORK_TYPE_EVDO_B
+          "LTE",      // 13 - NETWORK_TYPE_LTE
+          "EHRPD",    // 14 - NETWORK_TYPE_EHRPD
   };
 
   /** Returns mobile data network connection type. */
@@ -335,30 +346,34 @@ public class PhoneUtils {
   /** Returns current Wi-Fi SSID, or null if Wi-Fi is not connected. */
   private String getWifiCarrierName() {
     WifiManager wifiManager =
-        (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     WifiInfo wifiInfo = wifiManager.getConnectionInfo();
     if (wifiInfo != null) {
       return wifiInfo.getSSID();
     }
     return null;
   }
-  
+
   /**
    * Returns the information about cell towers in range. Returns null if the information is 
    * not available 
-   * 
+   *
    * TODO(wenjiezeng): As folklore has it and Wenjie has confirmed, we cannot get cell info from
    * Samsung phones.
    */
+  @SuppressLint("MissingPermission")
   public String getCellInfo(boolean cidOnly) {
     initNetwork();
-    List<NeighboringCellInfo> infos = telephonyManager.getNeighboringCellInfo();
+    List<NeighboringCellInfo> infos = null;
+    if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_COARSE_LOCATION))
+      infos = telephonyManager.getNeighboringCellInfo();
+
     StringBuffer buf = new StringBuffer();
     String tempResult = "";
-    if (infos.size() > 0) {
+    if (infos != null && infos.size() > 0) {
       for (NeighboringCellInfo info : infos) {
-        tempResult = cidOnly ? info.getCid() + ";" : info.getLac() + "," 
-                               + info.getCid() + "," + info.getRssi() + ";";
+        tempResult = cidOnly ? info.getCid() + ";" : info.getLac() + ","
+                + info.getCid() + "," + info.getRssi() + ";";
         buf.append(tempResult);
       }
       // Removes the trailing semicolon
@@ -374,10 +389,11 @@ public class PhoneUtils {
    *
    * As a side effect, assigns locationManager and locationProviderName.
    */
+  @SuppressLint("MissingPermission")
   private synchronized void initLocation() {
     if (locationManager == null) {
       LocationManager manager =
-        (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+              (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
       Criteria criteriaCoarse = new Criteria();
       /* "Coarse" accuracy means "no need to use GPS".
@@ -389,8 +405,8 @@ public class PhoneUtils {
       criteriaCoarse.setAccuracy(Criteria.ACCURACY_COARSE);
       criteriaCoarse.setPowerRequirement(Criteria.POWER_LOW);
       String providerName =
-          manager.getBestProvider(criteriaCoarse, /*enabledOnly=*/true);
-      
+              manager.getBestProvider(criteriaCoarse, /*enabledOnly=*/true);
+
       List<String> providers = manager.getAllProviders();
       for (String providerNameIter : providers) {
         try {
@@ -401,7 +417,7 @@ public class PhoneUtils {
           continue;
         }
         Logger.i(providerNameIter + ": " +
-              (manager.isProviderEnabled(providerNameIter) ? "enabled" : "disabled"));
+                (manager.isProviderEnabled(providerNameIter) ? "enabled" : "disabled"));
       }
 
       /* Make sure the provider updates its location.
@@ -409,13 +425,15 @@ public class PhoneUtils {
        * device powercycle may not update it.
        * {@see android.location.LocationManager.getLastKnownLocation}.
        */
-      manager.requestLocationUpdates(providerName,
-                                     /*minTime=*/0,
-                                     /*minDistance=*/0,
-                                     new LoggingLocationListener(),
-                                     Looper.getMainLooper());
-      locationManager = manager;
-      locationProviderName = providerName;
+      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_FINE_LOCATION) && MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_COARSE_LOCATION)) {
+        manager.requestLocationUpdates(providerName,
+                /*minTime=*/0,
+                /*minDistance=*/0,
+                new LoggingLocationListener(),
+                Looper.getMainLooper());
+        locationManager = manager;
+        locationProviderName = providerName;
+      }
     }
     assert locationManager != null;
     assert locationProviderName != null;
@@ -426,10 +444,15 @@ public class PhoneUtils {
    *
    * @return the location of the device
    */
+  @SuppressLint("MissingPermission")
   public Location getLocation() {
     try {
-      initLocation();
-      Location location = locationManager.getLastKnownLocation(locationProviderName);
+      initLocation();//we asked for the permissions from here
+      Location location = null;
+      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_COARSE_LOCATION) && MeasurementCreationActivity.PERMISSION_SETTINGS.get(ACCESS_FINE_LOCATION)) {
+          location = locationManager.getLastKnownLocation(locationProviderName);
+          Logger.i("Got the location object");
+      }
       if (location == null) {
         Logger.e("Cannot obtain location from provider " + locationProviderName);
         return new Location("unknown");
@@ -445,10 +468,10 @@ public class PhoneUtils {
   public synchronized void acquireWakeLock() {
     if (wakeLock == null) {
       PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-      wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "tag");
+      wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, " mobiperf:mywakelocktag");
     }
     Logger.d("PowerLock acquired");
-    wakeLock.acquire();
+    wakeLock.acquire(10 * 60 * 1000L /*10 minutes*/);//this was recommended
   }
 
   /** Release the CPU wake lock. WakeLock is reference counted by default: no need to worry
@@ -463,13 +486,13 @@ public class PhoneUtils {
       }
     }
   }
-  
+
   /** Release all resource upon app shutdown */
   public synchronized void shutDown() {
     if (this.wakeLock != null) {
       /* Wakelock are ref counted by default. We disable this feature here to ensure that
        * the power lock is released upon shutdown.
-       */ 
+       */
       wakeLock.setReferenceCounted(false);
       wakeLock.release();
     }
@@ -497,7 +520,7 @@ public class PhoneUtils {
   public static Bitmap captureScreenshot(WebView webView) {
     Picture picture = webView.capturePicture();
     int width = Math.min(picture.getWidth(),
-        webView.getWidth() - webView.getVerticalScrollbarWidth());
+            webView.getWidth() - webView.getVerticalScrollbarWidth());
     int height = Math.min(picture.getHeight(), webView.getHeight());
     Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
     Canvas cv = new Canvas(bitmap);
@@ -532,7 +555,7 @@ public class PhoneUtils {
   }
 
   /**
-   * Types of interfaces to return from {@link #getUpInterfaces(InterfaceType)}.
+   * Types of interfaces to return from .
    */
   public enum InterfaceType {
     /** Local and external interfaces. */
@@ -563,7 +586,7 @@ public class PhoneUtils {
   public static String debugString(String[] arr) {
     return debugString(Arrays.asList(arr));
   }
-  
+
   public String getAppVersionName() {
     try {
       String packageName = context.getPackageName();
@@ -580,21 +603,21 @@ public class PhoneUtils {
   public synchronized int getCurrentBatteryLevel() {
     return curBatteryLevel;
   }
-  
+
   /**
    * Returns if the batter is charing
    */
   public synchronized boolean isCharging() {
     return isCharging;
   }
-  
+
   /**
    * Sets the current RSSI value
    */
   public synchronized void setCurrentRssi(int rssi) {
     currentSignalStrength = rssi;
   }
-  
+
   /**
    * Returns the last updated RSSI value
    */
@@ -602,24 +625,24 @@ public class PhoneUtils {
     initNetwork();
     return currentSignalStrength;
   }
-  
+
   private synchronized void updateBatteryStat(Intent powerIntent) {
-    int scale = powerIntent.getIntExtra(BatteryManager.EXTRA_SCALE, 
-        com.mobiperf.Config.DEFAULT_BATTERY_SCALE);
-    int level = powerIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, 
-        com.mobiperf.Config.DEFAULT_BATTERY_LEVEL);
+    int scale = powerIntent.getIntExtra(BatteryManager.EXTRA_SCALE,
+            com.mobiperf.Config.DEFAULT_BATTERY_SCALE);
+    int level = powerIntent.getIntExtra(BatteryManager.EXTRA_LEVEL,
+            com.mobiperf.Config.DEFAULT_BATTERY_LEVEL);
     // change to the unit of percentage
     this.curBatteryLevel = level * 100 / scale;
-    this.isCharging = powerIntent.getIntExtra(BatteryManager.EXTRA_STATUS, 
-        BatteryManager.BATTERY_STATUS_UNKNOWN) == BatteryManager.BATTERY_STATUS_CHARGING;
-    
+    this.isCharging = powerIntent.getIntExtra(BatteryManager.EXTRA_STATUS,
+            BatteryManager.BATTERY_STATUS_UNKNOWN) == BatteryManager.BATTERY_STATUS_CHARGING;
+
     Logger.i(
-        "Current power level is " + curBatteryLevel + " and isCharging = " + isCharging);
+            "Current power level is " + curBatteryLevel + " and isCharging = " + isCharging);
   }
-  
+
   private class PowerStateChangeReceiver extends BroadcastReceiver {
-    /** 
-     * @see android.content.BroadcastReceiver#onReceive(android.content.Context, 
+    /**
+     * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
      * android.content.Intent)
      */
     @Override
@@ -627,7 +650,7 @@ public class PhoneUtils {
       updateBatteryStat(intent);
     }
   }
-  
+
   private class SignalStrengthChangeListener extends PhoneStateListener {
     @Override
     public void onSignalStrengthsChanged(SignalStrength signalStrength) {
@@ -635,15 +658,15 @@ public class PhoneUtils {
       if (network.equals(NETWORK_TYPES[TelephonyManager.NETWORK_TYPE_CDMA])) {
         setCurrentRssi(signalStrength.getCdmaDbm());
       } else if (network.equals(NETWORK_TYPES[TelephonyManager.NETWORK_TYPE_EVDO_0]) ||
-          network.equals(NETWORK_TYPES[TelephonyManager.NETWORK_TYPE_EVDO_A]) ||
-            network.equals(NETWORK_TYPES[TelephonyManager.NETWORK_TYPE_EVDO_B])) {
+              network.equals(NETWORK_TYPES[TelephonyManager.NETWORK_TYPE_EVDO_A]) ||
+              network.equals(NETWORK_TYPES[TelephonyManager.NETWORK_TYPE_EVDO_B])) {
         setCurrentRssi(signalStrength.getEvdoDbm());
       } else if (signalStrength.isGsm()) {
         setCurrentRssi(signalStrength.getGsmSignalStrength());
       }
     }
   }
-  
+
   /**
    * Fetches the new connectivity state from the connectivity manager directly.
    */
@@ -662,7 +685,7 @@ public class PhoneUtils {
       PhoneUtils.this.currentNetworkConnection = TYPE_NOT_CONNECTED;
     }
   }
-  
+
   /**
    * When alerted that the network connectivity has changed, change the 
    * stored connectivity value.
@@ -679,14 +702,17 @@ public class PhoneUtils {
   public synchronized int getCurrentNetworkConnection() {
     return currentNetworkConnection;
   }
-  
+
   private String getVersionStr() {
     return String.format("INCREMENTAL:%s, RELEASE:%s, SDK_INT:%s", Build.VERSION.INCREMENTAL,
-        Build.VERSION.RELEASE, Build.VERSION.SDK_INT);
+            Build.VERSION.RELEASE, Build.VERSION.SDK_INT);
   }
-  
+
+  @SuppressLint("MissingPermission")
   private String getDeviceId() {
-    String deviceId = telephonyManager.getDeviceId();  // This ID is permanent to a physical phone.
+    String deviceId = null;
+    if(MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.READ_PHONE_STATE))
+      deviceId= telephonyManager.getDeviceId();  // This ID is permanent to a physical phone.
     // "generic" means the emulator.
     if (deviceId == null || Build.DEVICE.equals("generic")) {
       // This ID changes on OS reinstall/factory reset.

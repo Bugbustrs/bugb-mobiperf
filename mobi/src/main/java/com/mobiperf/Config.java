@@ -15,6 +15,8 @@
 
 package com.mobiperf;
 
+import java.util.EnumMap;
+
 /**
  * The system defaults.
  */
@@ -102,5 +104,10 @@ public interface Config {
   /** Constants to access the server **/
   public static String SERVER_ADDRESS="";
   public static int SERVER_PORT=7000;
+
+  /** Enum for all the permissions that we need*/
+  public static enum PERMISSION_IDS {
+    INTERNET, GET_ACCOUNTS, READ_PHONE_STATE, ACCESS_COARSE_LOCATION, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE, WAKE_LOCK, RECEIVE_BOOT_COMPLETED, ACCESS_FINE_LOCATION
+  }
 
 }

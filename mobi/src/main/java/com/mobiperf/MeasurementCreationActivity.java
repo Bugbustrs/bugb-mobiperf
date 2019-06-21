@@ -13,10 +13,14 @@
  */
 package com.mobiperf;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -28,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TableLayout;
 import android.widget.Toast;
@@ -44,15 +49,14 @@ import com.mobiperf.measurements.UDPBurstTask;
 import com.mobiperf.measurements.UDPBurstTask.UDPBurstDesc;
 import com.mobiperf.measurements.TCPThroughputTask;
 import com.mobiperf.measurements.TCPThroughputTask.TCPThroughputDesc;
-import com.mobiperf.measurements.RRCTask;
-import com.mobiperf.measurements.RRCTask.RRCDesc;
 import com.mobiperf.util.MLabNS;
-import com.mobiperf.R;
 
-import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,6 +66,15 @@ public class MeasurementCreationActivity extends Activity {
 
   private static final int NUMBER_OF_COMMON_VIEWS = 1;
   public static final String TAB_TAG = "MEASUREMENT_CREATION";
+  /**
+   * This stores the status on the permissions that we are going to be using.
+   */
+  public static EnumMap<Config.PERMISSION_IDS, Boolean> PERMISSION_SETTINGS;
+
+  /**
+   * This is a bad idea as it caauses memory leaks. But then it is very much needed for now. To fix this we first need to fix the issue to deal with permisions.
+   */
+  public static Activity MEASUREMENT_CREATION_ACTIVITY_CONTEXT;
 
   private SpeedometerApp parent;
   private String measurementTypeUnderEdit;
@@ -76,6 +89,9 @@ public class MeasurementCreationActivity extends Activity {
 
     assert (this.getParent().getClass().getName().compareTo("SpeedometerApp") == 0);
     this.parent = (SpeedometerApp) this.getParent();
+
+    /*set the value of MEASUREMENT_CREATION_ACTIVITY_CONTEXT to this*/
+    MEASUREMENT_CREATION_ACTIVITY_CONTEXT = this;
 
     /* Initialize the measurement type spinner */
     Spinner spinner = (Spinner) findViewById(R.id.measurementTypeSpinner);
@@ -115,6 +131,7 @@ public class MeasurementCreationActivity extends Activity {
     radioTCPUp.setChecked(true);
     radioTCPUp.setOnClickListener(new TCPRadioOnClickListener());
     radioTCPDown.setOnClickListener(new TCPRadioOnClickListener());
+    initPermMap();
   }
 
   private void setupEditTextFocusChangeListener() {
@@ -217,6 +234,7 @@ public class MeasurementCreationActivity extends Activity {
   private class ButtonOnClickListener implements OnClickListener {
     @Override
     public void onClick(View v) {
+      checkAndRequestPerms();
       MeasurementTask newTask = null;
       boolean showLengthWarning = false;
       try {
@@ -412,5 +430,45 @@ public class MeasurementCreationActivity extends Activity {
     }
   }
 
+  public static Activity getInstance(){
+    return MEASUREMENT_CREATION_ACTIVITY_CONTEXT;
+  }
 
+  private static void initPermMap(){
+    PERMISSION_SETTINGS = new EnumMap<>(Config.PERMISSION_IDS.class);
+    for(Config.PERMISSION_IDS permission_id: Config.PERMISSION_IDS.values()) {
+      /** Assume false when starting*/
+      PERMISSION_SETTINGS.put(permission_id, false);
+    }
+  }
+
+  public void checkAndRequestPerms(){
+    List<String> list = new ArrayList<>();
+    if (ContextCompat.checkSelfPermission(getInstance(),
+            Manifest.permission.READ_PHONE_STATE)
+            != PackageManager.PERMISSION_GRANTED)
+      list.add(Manifest.permission.READ_PHONE_STATE);
+    if (ContextCompat.checkSelfPermission(getInstance(),
+            Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED)
+      list.add(Manifest.permission.ACCESS_FINE_LOCATION);
+    if(list.size()>0){
+      String [] temp = new String[list.size()];
+      for (int i = 0; i < list.size(); i++) {
+        temp[i]= list.get(i);
+      }
+      Logger.i("Requesting permissions from the devie");
+      ActivityCompat.requestPermissions(getParent(),temp,0);
+    }
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+                                         String[] permissions, int[] grantResults) {
+    for (int i = 0, permissionsLength = permissions.length; i < permissionsLength; i++) {
+      String s = permissions[i];
+      s=s.substring(s.lastIndexOf('.'));
+      PERMISSION_SETTINGS.put(Config.PERMISSION_IDS.valueOf(s),grantResults[i] == PackageManager.PERMISSION_GRANTED);
+    }
+  }
 }

@@ -18,7 +18,7 @@
     android:layout_weight="1000"/>
   <Button android:id="@+id/checkinButton" 
     android:layout_width="90dip" 
-    android:layout_height="wrap_content" 
-    android:layout_centerHorizontal="true"
-    android:text="Checkin" android:layout_weight="1"/>
+    android:layout_height="wrap_content"
+      android:text="Checkin"
+      android:layout_weight="1"/>
 </LinearLayout>
