@@ -48,6 +48,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -60,6 +61,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -72,6 +74,7 @@ import javax.net.ssl.X509TrustManager;
  * Handles checkins with the SpeedometerApp server.
  */
 public class Checkin {
+  private static final String CHECK_IN_TAG="checkIn";
   private static final int POST_TIMEOUT_MILLISEC = 20 * 1000;
   private Context context;
   private Date lastCheckin;
@@ -126,7 +129,7 @@ public class Checkin {
       Logger.d(status.toString());
       sendStringMsg("Checking in");
 
-      String result = serviceRequest("checkin", status.toString());
+      String result = serviceRequest(CHECK_IN_TAG, status.toString());
       Logger.d("Checkin result: " + result);
       resourceCapManager.updateDataUsage(result.length());
 
@@ -342,51 +345,37 @@ public class Checkin {
     client.setCookieStore(store);
     return client;
   }
-
-  private String serviceRequest(String url, String jsonString)
-      throws IOException {
-
-    if (this.accountSelector == null) {
-      accountSelector = new AccountSelector(context);
+  /**
+   * sends a service request from the server
+   *
+   */
+  private String serviceRequest(String request, String jsonString)
+          throws IOException {
+    Socket server= new Socket(Config.SERVER_ADDRESS,Config.SERVER_PORT);
+    PrintWriter out = new PrintWriter(server.getOutputStream());
+    if(request.equals(CHECK_IN_TAG)) {
+      JSONObject checkInRequest=generateCheckInJson();
+      out.println(checkInRequest.toString());
+      out.flush();
+      Logger.d(checkInRequest.toString());
     }
-
-    if (!accountSelector.isAnonymous()) {
-      synchronized (this) {
-        if (authCookie == null) {
-          if (!checkGetCookie()) {
-            throw new IOException("No authCookie yet");
-          }
-        }
-      }
-    }
-
-    HttpClient client = getNewHttpClient();
-    String fullurl =
-        (accountSelector.isAnonymous()
-            ? phoneUtils.getAnonymousServerUrl()
-            : phoneUtils.getServerUrl()) + "/" + url;
-    Logger.i("Checking in to " + fullurl);
-    HttpPost postMethod = new HttpPost(fullurl);
-
-    StringEntity se;
-    try {
-      se = new StringEntity(jsonString);
-    } catch (UnsupportedEncodingException e) {
-      throw new IOException(e.getMessage());
-    }
-    postMethod.setEntity(se);
-    postMethod.setHeader("Accept", "application/json");
-    postMethod.setHeader("Content-type", "application/json");
-    if (!accountSelector.isAnonymous()) {
-      // TODO(mdw): This should not be needed
-      postMethod.setHeader("Cookie",
-          authCookie.getName() + "=" + authCookie.getValue());
-    }
-
-    ResponseHandler<String> responseHandler = new BasicResponseHandler();
-    Logger.i("Sending request: " + fullurl);
-    String result = client.execute(postMethod, responseHandler);
+    Scanner in = new Scanner(server.getInputStream());
+    String result=in.nextLine();
+    Logger.d("the result is \n"+result);
+    server.close();
     return result;
+  }
+
+  public JSONObject generateCheckInJson(){
+    JSONObject request=null;
+    try {
+      request=new JSONObject();
+      request.put("request_type",CHECK_IN_TAG);
+      return request;
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+    return request;
   }
 
   /**
