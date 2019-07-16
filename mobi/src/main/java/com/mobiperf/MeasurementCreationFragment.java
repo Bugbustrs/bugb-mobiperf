@@ -14,7 +14,6 @@
 package com.mobiperf;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +21,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +35,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
-import android.widget.TabHost;
 import android.widget.TableLayout;
 import android.widget.Toast;
 
@@ -61,7 +60,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.mobiperf.R.*;
+import static com.mobiperf.R.id;
+import static com.mobiperf.R.layout;
+import static com.mobiperf.R.string;
 
 /**
  * The UI Activity that allows users to create their own measurements
@@ -364,8 +365,6 @@ public class MeasurementCreationFragment extends Fragment {
             v.getContext().sendBroadcast(
                 new UpdateIntent("", UpdateIntent.MEASUREMENT_ACTION));
             SpeedometerApp parent = (SpeedometerApp) v.getParent();
-            TabHost tabHost = parent.getTabHost();
-            tabHost.setCurrentTabByTag(ResultsConsoleFragment.TAB_TAG);
             String toastStr =
                 MeasurementCreationFragment.this.getString(string.userMeasurementSuccessToast);
             if (showLengthWarning) {
@@ -473,7 +472,7 @@ public class MeasurementCreationFragment extends Fragment {
         temp[i]= list.get(i);
       }
       Logger.i("Requesting permissions from the device");
-      ActivityCompat.requestPermissions((Activity) v.getParent(),temp,0);
+      ActivityCompat.requestPermissions((AppCompatActivity) v.getParent(),temp,0);
     }
   }
 

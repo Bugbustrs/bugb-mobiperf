@@ -14,23 +14,22 @@
  */
 package com.mobiperf;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.mobiperf.R;
 import com.mobiperf.MeasurementScheduler.SchedulerBinder;
 
 /**
  * The activity that provides a console and progress bar of the ongoing measurement
  */
-public class SystemConsoleActivity extends Activity {
+public class SystemConsoleActivity extends AppCompatActivity {
   private ListView consoleView;
   private MeasurementScheduler scheduler = null;
   private boolean isBound = false;
