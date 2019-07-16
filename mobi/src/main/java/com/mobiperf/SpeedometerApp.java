@@ -178,7 +178,6 @@ public class SpeedometerApp extends TabActivity {
     Logger.d("onCreate called");
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
-    
     restoreDefaultAccount();
     if (selectedAccount == null) {
         Intent intent = AccountManager.newChooseAccountIntent(null, null,  new String[] {"com.google", "com.google.android.legacyimap"}, null, null, null, null);
