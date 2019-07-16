@@ -20,7 +20,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -35,7 +38,7 @@ import com.mobiperf.R;
 /**
  * The activity that provides a console and progress bar of the ongoing measurement
  */
-public class ResultsConsoleActivity extends Activity {
+public class ResultsConsoleFragment extends Fragment {
   
   public static final String TAB_TAG = "MY_MEASUREMENTS";
   
@@ -47,24 +50,26 @@ public class ResultsConsoleActivity extends Activity {
   ToggleButton showSystemResultButton;
   MeasurementScheduler scheduler = null;
   boolean userResultsActive = false;
+
+  private View  v;
   
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    Logger.d("ResultsConsoleActivity.onCreate called");
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.results);
+    View v = inflater.inflate(R.layout.results, container, false);
+    Logger.d("ResultsConsoleFragment.onCreate called");
     IntentFilter filter = new IntentFilter();
     filter.addAction(UpdateIntent.SCHEDULER_CONNECTED_ACTION);
     filter.addAction(UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION);
 
-    this.consoleView = (ListView) this.findViewById(R.id.resultConsole);
-    this.results = new ArrayAdapter<String>(getApplicationContext(), R.layout.list_item);
+    this.consoleView = (ListView) v.findViewById(R.id.resultConsole);
+    this.results = new ArrayAdapter<String>(v.getContext(), R.layout.list_item);
     this.consoleView.setAdapter(this.results);
-    this.progressBar = (ProgressBar) this.findViewById(R.id.progress_bar);
+    this.progressBar = (ProgressBar) v.findViewById(R.id.progress_bar);
     this.progressBar.setMax(Config.MAX_PROGRESS_BAR_VALUE);
     this.progressBar.setProgress(Config.MAX_PROGRESS_BAR_VALUE);
-    showUserResultButton = (ToggleButton) findViewById(R.id.showUserResults);
-    showSystemResultButton = (ToggleButton) findViewById(R.id.showSystemResults);
+    showUserResultButton = (ToggleButton) v.findViewById(R.id.showUserResults);
+    showSystemResultButton = (ToggleButton) v.findViewById(R.id.showSystemResults);
     showUserResultButton.setChecked(true);
     showSystemResultButton.setChecked(false);
     userResultsActive = true;
@@ -100,9 +105,10 @@ public class ResultsConsoleActivity extends Activity {
         }
       }
     };
-    this.registerReceiver(this.receiver, filter);
+    v.getContext().registerReceiver(this.receiver, filter);
     
     getConsoleContentFromScheduler();
+    return v;
   }
   
   /**
@@ -135,16 +141,16 @@ public class ResultsConsoleActivity extends Activity {
   }
   
   @Override
-  protected void onDestroy() {
-    Logger.d("ResultsConsoleActivity.onDestroy called");
+  public void onDestroy() {
+    Logger.d("ResultsConsoleFragment.onDestroy called");
     super.onDestroy();
-    this.unregisterReceiver(this.receiver);
+    v.getContext().unregisterReceiver(this.receiver);
   }
   
   private synchronized void getConsoleContentFromScheduler() {
-    Logger.d("ResultsConsoleActivity.getConsoleContentFromScheduler called");
+    Logger.d("ResultsConsoleFragment.getConsoleContentFromScheduler called");
     if (scheduler == null) {
-      SpeedometerApp parent = (SpeedometerApp) getParent();
+      SpeedometerApp parent = (SpeedometerApp) v.getParent();
       scheduler = parent.getScheduler();
     }
     // Scheduler may have not had time to start yet. When it does, the intent above will call this
@@ -157,7 +163,7 @@ public class ResultsConsoleActivity extends Activity {
       for (String result : scheduler_results) {
         results.add(result);
       }
-      runOnUiThread(new Runnable() {
+      getActivity().runOnUiThread(new Runnable() {
         public void run() { results.notifyDataSetChanged(); }
       });
     }

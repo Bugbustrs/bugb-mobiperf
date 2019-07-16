@@ -365,7 +365,7 @@ public class MeasurementCreationFragment extends Fragment {
                 new UpdateIntent("", UpdateIntent.MEASUREMENT_ACTION));
             SpeedometerApp parent = (SpeedometerApp) v.getParent();
             TabHost tabHost = parent.getTabHost();
-            tabHost.setCurrentTabByTag(ResultsConsoleActivity.TAB_TAG);
+            tabHost.setCurrentTabByTag(ResultsConsoleFragment.TAB_TAG);
             String toastStr =
                 MeasurementCreationFragment.this.getString(string.userMeasurementSuccessToast);
             if (showLengthWarning) {

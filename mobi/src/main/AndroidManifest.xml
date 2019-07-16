@@ -46,7 +46,7 @@
       android:theme="@android:style/Theme.Light.NoTitleBar">      
     </activity>
     <activity 
-      android:name=".ResultsConsoleActivity"
+      android:name=".ResultsConsoleFragment"
       android:launchMode="singleTask"
       android:theme="@android:style/Theme.Light.NoTitleBar">
     </activity>

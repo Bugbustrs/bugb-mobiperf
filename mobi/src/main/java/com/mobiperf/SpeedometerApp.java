@@ -207,8 +207,8 @@ public class SpeedometerApp extends TabActivity {
         "Measure", res.getDrawable(R.drawable.ic_tab_user_measurement)).setContent(intent);
     tabHost.addTab(spec);
     // Creates the user task console tab
-    intent = new Intent().setClass(this, ResultsConsoleActivity.class);
-    spec = tabHost.newTabSpec(ResultsConsoleActivity.TAB_TAG).setIndicator(
+    intent = new Intent().setClass(this, ResultsConsoleFragment.class);
+    spec = tabHost.newTabSpec(ResultsConsoleFragment.TAB_TAG).setIndicator(
         "Results", res.getDrawable(R.drawable.ic_tab_results_icon)).setContent(intent);
     tabHost.addTab(spec);
     
