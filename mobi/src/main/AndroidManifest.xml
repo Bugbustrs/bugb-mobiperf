@@ -61,7 +61,7 @@
       android:theme="@android:style/Theme.Light.NoTitleBar">
     </activity>
     <activity 
-      android:name=".MeasurementScheduleConsoleActivity"
+      android:name=".MeasurementScheduleConsoleFragment"
       android:launchMode="singleTask" 
       android:theme="@android:style/Theme.Light.NoTitleBar">
     </activity>

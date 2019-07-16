@@ -213,8 +213,8 @@ public class SpeedometerApp extends TabActivity {
     tabHost.addTab(spec);
     
     // Creates the measurement schedule console tab
-    intent = new Intent().setClass(this, MeasurementScheduleConsoleActivity.class);
-    spec = tabHost.newTabSpec(MeasurementScheduleConsoleActivity.TAB_TAG).setIndicator(
+    intent = new Intent().setClass(this, MeasurementScheduleConsoleFragment.class);
+    spec = tabHost.newTabSpec(MeasurementScheduleConsoleFragment.TAB_TAG).setIndicator(
         "Task Queue", res.getDrawable(R.drawable.ic_tab_schedules)).setContent(intent);
     tabHost.addTab(spec);
 

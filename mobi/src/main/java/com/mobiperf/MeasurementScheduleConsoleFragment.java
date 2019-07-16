@@ -21,12 +21,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -44,7 +47,7 @@ import com.mobiperf.R;
 /**
  * Activity that shows the current measurement schedule of the scheduler
  */
-public class MeasurementScheduleConsoleActivity extends Activity {
+public class MeasurementScheduleConsoleFragment extends Fragment {
   public static final String TAB_TAG = "MEASUREMENT_SCHEDULE";
   
   private MeasurementScheduler scheduler;
@@ -56,19 +59,20 @@ public class MeasurementScheduleConsoleActivity extends Activity {
   private HashMap<String, String> taskMap;
   private int longClickedItemPosition = -1;
   private BroadcastReceiver receiver;
-  
+
+  private View v;
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.setContentView(R.layout.measurement_schedule);
+    v = inflater.inflate(R.layout.measurement_schedule, container, false);
     
     taskMap = new HashMap<String, String>();
-    parent = (SpeedometerApp) this.getParent();
-    consoleContent = new ArrayAdapter<String>(this, R.layout.list_item);
-    this.consoleView = (ListView) this.findViewById(R.id.measurementScheduleConsole);
+    parent = (SpeedometerApp) this.v.getParent();
+    consoleContent = new ArrayAdapter<String>(v.getContext(), R.layout.list_item);
+    this.consoleView = (ListView) this.v.findViewById(R.id.measurementScheduleConsole);
     this.consoleView.setAdapter(consoleContent);
-    lastCheckinTimeText = (TextView)this.findViewById(R.id.lastCheckinTime);
-    Button checkinButton = (Button) this.findViewById(R.id.checkinButton);
+    lastCheckinTimeText = (TextView)this.v.findViewById(R.id.lastCheckinTime);
+    Button checkinButton = (Button) this.v.findViewById(R.id.checkinButton);
     checkinButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -101,7 +105,8 @@ public class MeasurementScheduleConsoleActivity extends Activity {
         updateConsole();
       }
     };
-    registerReceiver(receiver, filter);
+    v.getContext().registerReceiver(receiver, filter);
+    return v;
   }
   
   /**
@@ -111,20 +116,20 @@ public class MeasurementScheduleConsoleActivity extends Activity {
   public void onCreateContextMenu(ContextMenu menu, View v,
                                   ContextMenuInfo menuInfo) {
     super.onCreateContextMenu(menu, v, menuInfo);
-    MenuInflater inflater = getMenuInflater();
+    MenuInflater inflater =getActivity().getMenuInflater();
     inflater.inflate(R.menu.scheduler_console_context_menu, menu);
   }
   
   @Override
-  protected void onResume() {
+  public void onResume() {
     super.onResume();
     updateConsole();
   }
   
   @Override
-  protected void onDestroy() {
+  public void onDestroy() {
     super.onDestroy();
-    unregisterReceiver(receiver);
+    v.getContext().unregisterReceiver(receiver);
   }
   
   /**
