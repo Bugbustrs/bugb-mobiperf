@@ -50,7 +50,7 @@ import android.webkit.WebView;
 import com.mobiperf.DeviceInfo;
 import com.mobiperf.DeviceProperty;
 import com.mobiperf.Logger;
-import com.mobiperf.MeasurementCreationActivity;
+import com.mobiperf.MeasurementCreationFragment;
 import com.mobiperf.R;
 
 import java.io.IOException;
@@ -355,7 +355,7 @@ public class PhoneUtils {
   public String getCellInfo(boolean cidOnly) {
     initNetwork();
     List<NeighboringCellInfo> infos = null;
-    if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION))
+    if (MeasurementCreationFragment.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION))
       infos = telephonyManager.getNeighboringCellInfo();
 
     StringBuffer buf = new StringBuffer();
@@ -415,7 +415,7 @@ public class PhoneUtils {
        * device powercycle may not update it.
        * {@see android.location.LocationManager.getLastKnownLocation}.
        */
-      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION)) {
+      if (MeasurementCreationFragment.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION)) {
         manager.requestLocationUpdates(providerName,
                 /*minTime=*/0,
                 /*minDistance=*/0,
@@ -439,7 +439,7 @@ public class PhoneUtils {
     try {
       initLocation();//we asked for the permissions from here
       Location location = null;
-      if (MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION)) {
+      if (MeasurementCreationFragment.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.ACCESS_COARSE_LOCATION)) {
           location = locationManager.getLastKnownLocation(locationProviderName);
           Logger.i("Got the location object");
       }
@@ -701,7 +701,7 @@ public class PhoneUtils {
   @SuppressLint("MissingPermission")
   private String getDeviceId() {
     String deviceId = null;
-    if(MeasurementCreationActivity.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.READ_PHONE_STATE))
+    if(MeasurementCreationFragment.PERMISSION_SETTINGS.get(com.mobiperf.Config.PERMISSION_IDS.READ_PHONE_STATE))
       deviceId= telephonyManager.getDeviceId();  // This ID is permanent to a physical phone.
     // "generic" means the emulator.
     if (deviceId == null || Build.DEVICE.equals("generic")) {

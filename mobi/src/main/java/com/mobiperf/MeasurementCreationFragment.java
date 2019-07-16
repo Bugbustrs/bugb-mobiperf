@@ -20,10 +20,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -32,7 +35,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TableLayout;
 import android.widget.Toast;
@@ -43,12 +45,12 @@ import com.mobiperf.measurements.HttpTask;
 import com.mobiperf.measurements.HttpTask.HttpDesc;
 import com.mobiperf.measurements.PingTask;
 import com.mobiperf.measurements.PingTask.PingDesc;
+import com.mobiperf.measurements.TCPThroughputTask;
+import com.mobiperf.measurements.TCPThroughputTask.TCPThroughputDesc;
 import com.mobiperf.measurements.TracerouteTask;
 import com.mobiperf.measurements.TracerouteTask.TracerouteDesc;
 import com.mobiperf.measurements.UDPBurstTask;
 import com.mobiperf.measurements.UDPBurstTask.UDPBurstDesc;
-import com.mobiperf.measurements.TCPThroughputTask;
-import com.mobiperf.measurements.TCPThroughputTask.TCPThroughputDesc;
 import com.mobiperf.util.MLabNS;
 
 import java.security.InvalidParameterException;
@@ -59,10 +61,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.mobiperf.R.*;
+
 /**
  * The UI Activity that allows users to create their own measurements
  */
-public class MeasurementCreationActivity extends Activity {
+public class MeasurementCreationFragment extends Fragment {
 
   private static final int NUMBER_OF_COMMON_VIEWS = 1;
   public static final String TAB_TAG = "MEASUREMENT_CREATION";
@@ -72,30 +76,29 @@ public class MeasurementCreationActivity extends Activity {
   public static EnumMap<Config.PERMISSION_IDS, Boolean> PERMISSION_SETTINGS;
 
   /**
-   * This is a bad idea as it caauses memory leaks. But then it is very much needed for now. To fix this we first need to fix the issue to deal with permisions.
+   * This is a bad idea as it causes memory leaks. But then it is very much needed for now. To fix this we first need to fix the issue to deal with permissions.
    */
-  public static Activity MEASUREMENT_CREATION_ACTIVITY_CONTEXT;
-
   private SpeedometerApp parent;
   private String measurementTypeUnderEdit;
   private ArrayAdapter<String> spinnerValues;
   private String udpDir;
   private String tcpDir;
+  private View v;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.setContentView(R.layout.measurement_creation_main);
+    v = inflater.inflate(layout.measurement_creation_main, container, false);
 
-    assert (this.getParent().getClass().getName().compareTo("SpeedometerApp") == 0);
-    this.parent = (SpeedometerApp) this.getParent();
+    if ((v.getParent().getClass().getName().compareTo("SpeedometerApp") != 0))
+      throw new AssertionError();
+    this.parent = (SpeedometerApp) v.getParent();
 
-    /*set the value of MEASUREMENT_CREATION_ACTIVITY_CONTEXT to this*/
-    MEASUREMENT_CREATION_ACTIVITY_CONTEXT = this;
+    /*set the value of MEASUREMENT_CREATION_CONTEXT to this*/
 
     /* Initialize the measurement type spinner */
-    Spinner spinner = (Spinner) findViewById(R.id.measurementTypeSpinner);
-    spinnerValues = new ArrayAdapter<String>(this.getApplicationContext(), R.layout.spinner_layout);
+    Spinner spinner = v.findViewById(id.measurementTypeSpinner);
+    spinnerValues = new ArrayAdapter<>(v.getContext(), layout.spinner_layout);
     for (String name : MeasurementTask.getMeasurementNames()) {
       // adding list of visible measurements
       if (MeasurementTask.getVisibilityForMeasurementName(name)) {
@@ -107,7 +110,7 @@ public class MeasurementCreationActivity extends Activity {
     spinner.setOnItemSelectedListener(new MeasurementTypeOnItemSelectedListener());
     spinner.requestFocus();
     /* Setup the 'run' button */
-    Button runButton = (Button) this.findViewById(R.id.runTaskButton);
+    Button runButton = v.findViewById(id.runTaskButton);
     runButton.setOnClickListener(new ButtonOnClickListener());
 
     this.measurementTypeUnderEdit = PingTask.TYPE;
@@ -115,45 +118,46 @@ public class MeasurementCreationActivity extends Activity {
 
     this.udpDir = "Up";
     this.tcpDir = "Up";
-    
-    final RadioButton radioUDPUp = (RadioButton) findViewById(R.id.UDPBurstUpButton);
-    final RadioButton radioUDPDown = (RadioButton) findViewById(R.id.UDPBurstDownButton);
-    final RadioButton radioTCPUp = (RadioButton) findViewById(R.id.TCPThroughputUpButton);
-    final RadioButton radioTCPDown = (RadioButton) findViewById(R.id.TCPThroughputDownButton);
-    
+
+    final RadioButton radioUDPUp = v.findViewById(id.UDPBurstUpButton);
+    final RadioButton radioUDPDown = v.findViewById(id.UDPBurstDownButton);
+    final RadioButton radioTCPUp = v.findViewById(id.TCPThroughputUpButton);
+    final RadioButton radioTCPDown = v.findViewById(id.TCPThroughputDownButton);
+
     radioUDPUp.setChecked(true);
     radioUDPUp.setOnClickListener(new UDPRadioOnClickListener());
     radioUDPDown.setOnClickListener(new UDPRadioOnClickListener());
-    
-    Button udpSettings = (Button)findViewById(R.id.UDPSettingsButton);
+
+    Button udpSettings = v.findViewById(id.UDPSettingsButton);
     udpSettings.setOnClickListener(new UDPSettingsOnClickListener());
-    
+
     radioTCPUp.setChecked(true);
     radioTCPUp.setOnClickListener(new TCPRadioOnClickListener());
     radioTCPDown.setOnClickListener(new TCPRadioOnClickListener());
     initPermMap();
+    return v;
   }
 
   private void setupEditTextFocusChangeListener() {
     EditBoxFocusChangeListener textFocusChangeListener = new EditBoxFocusChangeListener();
-    EditText text = (EditText) findViewById(R.id.pingTargetText);
+    EditText text = v.findViewById(id.pingTargetText);
     text.setOnFocusChangeListener(textFocusChangeListener);
-    text = (EditText) findViewById(R.id.tracerouteTargetText);
+    text = v.findViewById(id.tracerouteTargetText);
     text.setOnFocusChangeListener(textFocusChangeListener);
-    text = (EditText) findViewById(R.id.httpUrlText);
+    text = v.findViewById(id.httpUrlText);
     text.setOnFocusChangeListener(textFocusChangeListener);
-    text = (EditText) findViewById(R.id.dnsLookupText);
+    text = v.findViewById(id.dnsLookupText);
     text.setOnFocusChangeListener(textFocusChangeListener);
-    text = (EditText) findViewById(R.id.UDPBurstIntervalText);
+    text = v.findViewById(id.UDPBurstIntervalText);
     text.setOnFocusChangeListener(textFocusChangeListener);
-    text = (EditText) findViewById(R.id.UDPBurstPacketCountText);
+    text = v.findViewById(id.UDPBurstPacketCountText);
     text.setOnFocusChangeListener(textFocusChangeListener);
-    text = (EditText) findViewById(R.id.UDPBurstPacketSizeText);
+    text = v.findViewById(id.UDPBurstPacketSizeText);
     text.setOnFocusChangeListener(textFocusChangeListener);
   }
 
   @Override
-  protected void onStart() {
+  public void onStart() {
     super.onStart();
     this.populateMeasurementSpecificArea();
   }
@@ -166,30 +170,30 @@ public class MeasurementCreationActivity extends Activity {
   }
 
   private void populateMeasurementSpecificArea() {
-    TableLayout table = (TableLayout) this.findViewById(R.id.measurementCreationLayout);
+    TableLayout table = v.findViewById(id.measurementCreationLayout);
     this.clearMeasurementSpecificViews(table);
     if (this.measurementTypeUnderEdit.compareTo(PingTask.TYPE) == 0) {
-      this.findViewById(R.id.pingView).setVisibility(View.VISIBLE);
+      v.findViewById(id.pingView).setVisibility(View.VISIBLE);
     } else if (this.measurementTypeUnderEdit.compareTo(HttpTask.TYPE) == 0) {
-      this.findViewById(R.id.httpUrlView).setVisibility(View.VISIBLE);
+      v.findViewById(id.httpUrlView).setVisibility(View.VISIBLE);
     } else if (this.measurementTypeUnderEdit.compareTo(TracerouteTask.TYPE) == 0) {
-      this.findViewById(R.id.tracerouteView).setVisibility(View.VISIBLE);
+      v.findViewById(id.tracerouteView).setVisibility(View.VISIBLE);
     } else if (this.measurementTypeUnderEdit.compareTo(DnsLookupTask.TYPE) == 0) {
-      this.findViewById(R.id.dnsTargetView).setVisibility(View.VISIBLE);
+      v.findViewById(id.dnsTargetView).setVisibility(View.VISIBLE);
     } else if (this.measurementTypeUnderEdit.compareTo(UDPBurstTask.TYPE) == 0) {
-      this.findViewById(R.id.UDPBurstDirView).setVisibility(View.VISIBLE);
-      this.findViewById(R.id.UDPSettingsButton).setVisibility(View.VISIBLE);
-//      this.findViewById(R.id.UDPBurstPacketSizeView).setVisibility(View.VISIBLE);
-//      this.findViewById(R.id.UDPBurstPacketCountView).setVisibility(View.VISIBLE);
-//      this.findViewById(R.id.UDPBurstIntervalView).setVisibility(View.VISIBLE);
+      v.findViewById(id.UDPBurstDirView).setVisibility(View.VISIBLE);
+      v.findViewById(id.UDPSettingsButton).setVisibility(View.VISIBLE);
+//      v.findViewById(R.id.UDPBurstPacketSizeView).setVisibility(View.VISIBLE);
+//      v.findViewById(R.id.UDPBurstPacketCountView).setVisibility(View.VISIBLE);
+//      v.findViewById(R.id.UDPBurstIntervalView).setVisibility(View.VISIBLE);
     } else if (this.measurementTypeUnderEdit.compareTo(TCPThroughputTask.TYPE) == 0) {
-      this.findViewById(R.id.TCPThroughputDirView).setVisibility(View.VISIBLE);
+      v.findViewById(id.TCPThroughputDirView).setVisibility(View.VISIBLE);
     }
   }
 
-  private void hideKyeboard(EditText textBox) {
+  private void hideKeyboard(EditText textBox) {
     if (textBox != null) {
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
       imm.hideSoftInputFromWindow(textBox.getWindowToken(), 0);
     }
   }
@@ -198,28 +202,28 @@ public class MeasurementCreationActivity extends Activity {
     @Override
     public void onClick(View v) {
       Button b = (Button)v;
-      if ( isShowSettings == false ) {
+      if (!isShowSettings) {
         isShowSettings = true;
-        b.setText("Collapse Advanced Settings");
-        findViewById(R.id.UDPBurstPacketSizeView).setVisibility(View.VISIBLE);
-        findViewById(R.id.UDPBurstPacketCountView).setVisibility(View.VISIBLE);
-        findViewById(R.id.UDPBurstIntervalView).setVisibility(View.VISIBLE);
+        b.setText(getString(string.Collapse_Advanced_Settings));
+        v.findViewById(id.UDPBurstPacketSizeView).setVisibility(View.VISIBLE);
+        v.findViewById(id.UDPBurstPacketCountView).setVisibility(View.VISIBLE);
+        v.findViewById(id.UDPBurstIntervalView).setVisibility(View.VISIBLE);
       }
       else {
         isShowSettings = false;
-        b.setText("Expand Advanced Settings");
-        findViewById(R.id.UDPBurstPacketSizeView).setVisibility(View.GONE);
-        findViewById(R.id.UDPBurstPacketCountView).setVisibility(View.GONE);
-        findViewById(R.id.UDPBurstIntervalView).setVisibility(View.GONE);
+        b.setText(getString(string.Expand_Advanced_Settings));
+        v.findViewById(id.UDPBurstPacketSizeView).setVisibility(View.GONE);
+        v.findViewById(id.UDPBurstPacketCountView).setVisibility(View.GONE);
+        v.findViewById(id.UDPBurstIntervalView).setVisibility(View.GONE);
       }
     }
   }
-  
+
   private class UDPRadioOnClickListener implements OnClickListener {
     @Override
     public void onClick(View v) {
       RadioButton rb = (RadioButton) v;
-      MeasurementCreationActivity.this.udpDir = (String) rb.getText();
+      MeasurementCreationFragment.this.udpDir = (String) rb.getText();
     }
   }
 
@@ -227,10 +231,10 @@ public class MeasurementCreationActivity extends Activity {
     @Override
     public void onClick(View v) {
       RadioButton rb = (RadioButton) v;
-      MeasurementCreationActivity.this.tcpDir = (String) rb.getText();
+      MeasurementCreationFragment.this.tcpDir = (String) rb.getText();
     }
   }
-  
+
   private class ButtonOnClickListener implements OnClickListener {
     @Override
     public void onClick(View v) {
@@ -238,103 +242,116 @@ public class MeasurementCreationActivity extends Activity {
       MeasurementTask newTask = null;
       boolean showLengthWarning = false;
       try {
-        if (measurementTypeUnderEdit.equals(PingTask.TYPE)) {
-          EditText pingTargetText = (EditText) findViewById(R.id.pingTargetText);
-          Map<String, String> params = new HashMap<String, String>();
-          params.put("target", pingTargetText.getText().toString());
-          PingDesc desc = new PingDesc(null,
-              Calendar.getInstance().getTime(),
-              null,
-              Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
-              Config.DEFAULT_USER_MEASUREMENT_COUNT,
-              MeasurementTask.USER_PRIORITY,
-              params);
-          newTask = new PingTask(desc, MeasurementCreationActivity.this.getApplicationContext());
-        } else if (measurementTypeUnderEdit.equals(HttpTask.TYPE)) {
-          EditText httpUrlText = (EditText) findViewById(R.id.httpUrlText);
-          Map<String, String> params = new HashMap<String, String>();
-          params.put("url", httpUrlText.getText().toString());
-          params.put("method", "get");
-          HttpDesc desc = new HttpDesc(null,
-              Calendar.getInstance().getTime(),
-              null,
-              Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
-              Config.DEFAULT_USER_MEASUREMENT_COUNT,
-              MeasurementTask.USER_PRIORITY,
-              params);
-          newTask = new HttpTask(desc, MeasurementCreationActivity.this.getApplicationContext());
-        } else if (measurementTypeUnderEdit.equals(TracerouteTask.TYPE)) {
-          EditText targetText = (EditText) findViewById(R.id.tracerouteTargetText);
-          Map<String, String> params = new HashMap<String, String>();
-          params.put("target", targetText.getText().toString());
-          TracerouteDesc desc = new TracerouteDesc(null,
-              Calendar.getInstance().getTime(),
-              null,
-              Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
-              Config.DEFAULT_USER_MEASUREMENT_COUNT,
-              MeasurementTask.USER_PRIORITY,
-              params);
-          newTask =
-              new TracerouteTask(desc, MeasurementCreationActivity.this.getApplicationContext());
-          showLengthWarning = true;
-        } else if (measurementTypeUnderEdit.equals(DnsLookupTask.TYPE)) {
-          EditText dnsTargetText = (EditText) findViewById(R.id.dnsLookupText);
-          Map<String, String> params = new HashMap<String, String>();
-          params.put("target", dnsTargetText.getText().toString());
-          DnsLookupDesc desc = new DnsLookupDesc(null,
-              Calendar.getInstance().getTime(),
-              null,
-              Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
-              Config.DEFAULT_USER_MEASUREMENT_COUNT,
-              MeasurementTask.USER_PRIORITY,
-              params);
-          newTask =
-              new DnsLookupTask(desc, MeasurementCreationActivity.this.getApplicationContext());
-        } else if (measurementTypeUnderEdit.equals(UDPBurstTask.TYPE)) {
-          Map<String, String> params = new HashMap<String, String>();
-          // TODO(dominic): Support multiple servers for UDP. For now, just
-          // m-lab.
-          params.put("target", MLabNS.TARGET);
-          params.put("direction", udpDir);
-          // Get UDP Burst packet size
-          EditText UDPBurstPacketSizeText = 
-              (EditText) findViewById(R.id.UDPBurstPacketSizeText);
-          params.put("packet_size_byte"
-            , UDPBurstPacketSizeText.getText().toString());
-          // Get UDP Burst packet count
-          EditText UDPBurstPacketCountText = 
-              (EditText) findViewById(R.id.UDPBurstPacketCountText);
-          params.put("packet_burst"
-            , UDPBurstPacketCountText.getText().toString());
-          // Get UDP Burst interval
-          EditText UDPBurstIntervalText = 
-              (EditText) findViewById(R.id.UDPBurstIntervalText);
-          params.put("udp_interval"
-            , UDPBurstIntervalText.getText().toString());
-   
-          UDPBurstDesc desc = new UDPBurstDesc(null,
-              Calendar.getInstance().getTime(),
-              null,
-              Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
-              Config.DEFAULT_USER_MEASUREMENT_COUNT,
-              MeasurementTask.USER_PRIORITY,
-              params);
-          newTask = new UDPBurstTask(desc
-            , MeasurementCreationActivity.this.getApplicationContext());
-        } else if (measurementTypeUnderEdit.equals(TCPThroughputTask.TYPE)) {
-            Map<String, String> params = new HashMap<String, String>();
+        switch (measurementTypeUnderEdit) {
+          case PingTask.TYPE: {
+            EditText pingTargetText = v.findViewById(id.pingTargetText);
+            Map<String, String> params = new HashMap<>();
+            params.put("target", pingTargetText.getText().toString());
+            PingDesc desc = new PingDesc(null,
+                    Calendar.getInstance().getTime(),
+                    null,
+                    Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
+                    Config.DEFAULT_USER_MEASUREMENT_COUNT,
+                    MeasurementTask.USER_PRIORITY,
+                    params);
+            newTask = new PingTask(desc, v.getContext().getApplicationContext());
+            break;
+          }
+          case HttpTask.TYPE: {
+            EditText httpUrlText = v.findViewById(id.httpUrlText);
+            Map<String, String> params = new HashMap<>();
+            params.put("url", httpUrlText.getText().toString());
+            params.put("method", "get");
+            HttpDesc desc = new HttpDesc(null,
+                    Calendar.getInstance().getTime(),
+                    null,
+                    Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
+                    Config.DEFAULT_USER_MEASUREMENT_COUNT,
+                    MeasurementTask.USER_PRIORITY,
+                    params);
+            newTask = new HttpTask(desc, v.getContext().getApplicationContext());
+            break;
+          }
+          case TracerouteTask.TYPE: {
+            EditText targetText = v.findViewById(id.tracerouteTargetText);
+            Map<String, String> params = new HashMap<>();
+            params.put("target", targetText.getText().toString());
+            TracerouteDesc desc = new TracerouteDesc(null,
+                    Calendar.getInstance().getTime(),
+                    null,
+                    Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
+                    Config.DEFAULT_USER_MEASUREMENT_COUNT,
+                    MeasurementTask.USER_PRIORITY,
+                    params);
+            newTask =
+                    new TracerouteTask(desc, v.getContext().getApplicationContext());
+            showLengthWarning = true;
+            break;
+          }
+          case DnsLookupTask.TYPE: {
+            EditText dnsTargetText = v.findViewById(id.dnsLookupText);
+            Map<String, String> params = new HashMap<>();
+            params.put("target", dnsTargetText.getText().toString());
+            DnsLookupDesc desc = new DnsLookupDesc(null,
+                    Calendar.getInstance().getTime(),
+                    null,
+                    Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
+                    Config.DEFAULT_USER_MEASUREMENT_COUNT,
+                    MeasurementTask.USER_PRIORITY,
+                    params);
+            newTask =
+                    new DnsLookupTask(desc, v.getContext().getApplicationContext());
+            break;
+          }
+          case UDPBurstTask.TYPE: {
+            Map<String, String> params = new HashMap<>();
+            // TODO(dominic): Support multiple servers for UDP. For now, just
+            // m-lab.
+            params.put("target", MLabNS.TARGET);
+            params.put("direction", udpDir);
+            // Get UDP Burst packet size
+            EditText UDPBurstPacketSizeText =
+                    v.findViewById(id.UDPBurstPacketSizeText);
+            params.put("packet_size_byte"
+                    , UDPBurstPacketSizeText.getText().toString());
+            // Get UDP Burst packet count
+            EditText UDPBurstPacketCountText =
+                    v.findViewById(id.UDPBurstPacketCountText);
+            params.put("packet_burst"
+                    , UDPBurstPacketCountText.getText().toString());
+            // Get UDP Burst interval
+            EditText UDPBurstIntervalText =
+                    v.findViewById(id.UDPBurstIntervalText);
+            params.put("udp_interval"
+                    , UDPBurstIntervalText.getText().toString());
+
+            UDPBurstDesc desc = new UDPBurstDesc(null,
+                    Calendar.getInstance().getTime(),
+                    null,
+                    Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
+                    Config.DEFAULT_USER_MEASUREMENT_COUNT,
+                    MeasurementTask.USER_PRIORITY,
+                    params);
+            newTask = new UDPBurstTask(desc
+                    , v.getContext().getApplicationContext());
+            break;
+          }
+          case TCPThroughputTask.TYPE: {
+            Map<String, String> params = new HashMap<>();
             params.put("target", MLabNS.TARGET);
             params.put("dir_up", tcpDir);
             TCPThroughputDesc desc = new TCPThroughputDesc(null,
-              Calendar.getInstance().getTime(),
-              null,
-              Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
-              Config.DEFAULT_USER_MEASUREMENT_COUNT,
-              MeasurementTask.USER_PRIORITY,
-              params);
-            newTask = new TCPThroughputTask(desc, 
-                          MeasurementCreationActivity.this.getApplicationContext());
+                    Calendar.getInstance().getTime(),
+                    null,
+                    Config.DEFAULT_USER_MEASUREMENT_INTERVAL_SEC,
+                    Config.DEFAULT_USER_MEASUREMENT_COUNT,
+                    MeasurementTask.USER_PRIORITY,
+                    params);
+            newTask = new TCPThroughputTask(desc,
+                    v.getContext().getApplicationContext());
             showLengthWarning = true;
+            break;
+          }
         }
 
         if (newTask != null) {
@@ -344,30 +361,30 @@ public class MeasurementCreationActivity extends Activity {
              * Broadcast an intent with MEASUREMENT_ACTION so that the scheduler will immediately
              * handles the user measurement
              */
-            MeasurementCreationActivity.this.sendBroadcast(
+            v.getContext().sendBroadcast(
                 new UpdateIntent("", UpdateIntent.MEASUREMENT_ACTION));
-            SpeedometerApp parent = (SpeedometerApp) getParent();
+            SpeedometerApp parent = (SpeedometerApp) v.getParent();
             TabHost tabHost = parent.getTabHost();
             tabHost.setCurrentTabByTag(ResultsConsoleActivity.TAB_TAG);
             String toastStr =
-                MeasurementCreationActivity.this.getString(R.string.userMeasurementSuccessToast);
+                MeasurementCreationFragment.this.getString(string.userMeasurementSuccessToast);
             if (showLengthWarning) {
               toastStr += newTask.getDescriptor() + " measurements can be long. Please be patient.";
             }
-            Toast.makeText(MeasurementCreationActivity.this, toastStr, Toast.LENGTH_LONG).show();
+            Toast.makeText(v.getContext(), toastStr, Toast.LENGTH_LONG).show();
 
             if (scheduler.getCurrentTask() != null) {
               showBusySchedulerStatus();
             }
           } else {
-            Toast.makeText(MeasurementCreationActivity.this, R.string.userMeasurementFailureToast,
+            Toast.makeText(v.getContext(), string.userMeasurementFailureToast,
                 Toast.LENGTH_LONG).show();
           }
         }
       } catch (InvalidParameterException e) {
         Logger.e("InvalidParameterException when creating user measurements", e);
-        Toast.makeText(MeasurementCreationActivity.this,
-                       R.string.invalidParameterExceptionMeasurementToast +
+        Toast.makeText(v.getContext(),
+                       string.invalidParameterExceptionMeasurementToast +
                        ": " + e.getMessage(),
                        Toast.LENGTH_LONG).show();
       }
@@ -379,8 +396,8 @@ public class MeasurementCreationActivity extends Activity {
     Intent intent = new Intent();
     intent.setAction(UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION);
     intent.putExtra(
-        UpdateIntent.STATUS_MSG_PAYLOAD, getString(R.string.userMeasurementBusySchedulerToast));
-    sendBroadcast(intent);
+        UpdateIntent.STATUS_MSG_PAYLOAD, getString(string.userMeasurementBusySchedulerToast));
+    v.getContext().sendBroadcast(intent);
   }
 
   private class EditBoxFocusChangeListener implements OnFocusChangeListener {
@@ -388,13 +405,13 @@ public class MeasurementCreationActivity extends Activity {
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
       switch (v.getId()) {
-        case R.id.pingTargetText:
+        case id.pingTargetText:
           /*
            *
            * TODO(Wenjie): Verify user input
            */
           break;
-        case R.id.httpUrlText:
+        case id.httpUrlText:
           /*
            *
            * TODO(Wenjie): Verify user input
@@ -404,7 +421,7 @@ public class MeasurementCreationActivity extends Activity {
           break;
       }
       if (!hasFocus) {
-        hideKyeboard((EditText) v);
+        hideKeyboard((EditText) v);
       }
     }
   }
@@ -430,25 +447,23 @@ public class MeasurementCreationActivity extends Activity {
     }
   }
 
-  public static Activity getInstance(){
-    return MEASUREMENT_CREATION_ACTIVITY_CONTEXT;
-  }
+
 
   private static void initPermMap(){
     PERMISSION_SETTINGS = new EnumMap<>(Config.PERMISSION_IDS.class);
     for(Config.PERMISSION_IDS permission_id: Config.PERMISSION_IDS.values()) {
-      /** Assume false when starting*/
+      /* Assume false when starting*/
       PERMISSION_SETTINGS.put(permission_id, false);
     }
   }
 
   public void checkAndRequestPerms(){
     List<String> list = new ArrayList<>();
-    if (ContextCompat.checkSelfPermission(getInstance(),
+    if (ContextCompat.checkSelfPermission(v.getContext(),
             Manifest.permission.READ_PHONE_STATE)
             != PackageManager.PERMISSION_GRANTED)
       list.add(Manifest.permission.READ_PHONE_STATE);
-    if (ContextCompat.checkSelfPermission(getInstance(),
+    if (ContextCompat.checkSelfPermission(v.getContext(),
             Manifest.permission.ACCESS_COARSE_LOCATION)
             != PackageManager.PERMISSION_GRANTED)
       list.add(Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -457,8 +472,8 @@ public class MeasurementCreationActivity extends Activity {
       for (int i = 0; i < list.size(); i++) {
         temp[i]= list.get(i);
       }
-      Logger.i("Requesting permissions from the devie");
-      ActivityCompat.requestPermissions(getParent(),temp,0);
+      Logger.i("Requesting permissions from the device");
+      ActivityCompat.requestPermissions((Activity) v.getParent(),temp,0);
     }
   }
 

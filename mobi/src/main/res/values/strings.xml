@@ -65,6 +65,8 @@
     <string name="system_log_console">System Log Console</string>
     <string name="radio_Down">Down</string>
     <string name="radio_Up">Up</string>
+    <string name="Expand_Advanced_Settings">Expand Advanced Settings</string>
+    <string name="Collapse_Advanced_Settings">Collapse Advanced Settings</string>
 
 
 </resources>
