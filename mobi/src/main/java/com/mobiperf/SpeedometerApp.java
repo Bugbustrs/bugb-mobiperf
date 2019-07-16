@@ -16,6 +16,7 @@ package com.mobiperf;
 
 import java.security.Security;
 
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TabActivity;
@@ -29,9 +30,11 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.RequiresApi;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -50,7 +53,8 @@ import com.mobiperf.MeasurementScheduler.SchedulerBinder;
 public class SpeedometerApp extends TabActivity {
   
   public static final String TAG = "MobiPerf";
-  
+  private static final int REQUEST_ACCOUNTS = 23;
+
   private boolean userConsented = false;
   private String selectedAccount = null;
   
@@ -168,6 +172,7 @@ public class SpeedometerApp extends TabActivity {
     }
   }
     
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     Logger.d("onCreate called");
@@ -176,7 +181,8 @@ public class SpeedometerApp extends TabActivity {
     
     restoreDefaultAccount();
     if (selectedAccount == null) {
-      showDialog(DIALOG_ACCOUNT_SELECTOR);
+        Intent intent = AccountManager.newChooseAccountIntent(null, null,  new String[] {"com.google", "com.google.android.legacyimap"}, null, null, null, null);
+       startActivityForResult(intent, REQUEST_ACCOUNTS);
     } else {
       // double check the user consent selection
       consentDialogWrapper();
@@ -453,6 +459,17 @@ public class SpeedometerApp extends TabActivity {
     if (!userConsented) {
       // Show the consent dialog. After user select the content
       showDialog(DIALOG_CONSENT);
+    }
+  }
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == REQUEST_ACCOUNTS) {
+      // Receiving a result from the AccountPicker
+      if (resultCode == RESULT_OK) {
+        selectedAccount = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+      }else{
+        selectedAccount = "Anonymous";
+      }
     }
   }
 }
