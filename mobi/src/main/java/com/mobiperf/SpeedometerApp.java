@@ -501,6 +501,9 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         quitApp();
     }
 
+    String getSelectedAccount(){
+        return selectedAccount;
+    }
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void setUser(){
         Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google", "com.google.android.legacyimap"}, null, null, null, null);

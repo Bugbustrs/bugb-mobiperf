@@ -42,6 +42,7 @@ import java.util.HashMap;
 public class MeasurementResult {   
 
   private String deviceId;
+  private String accountName;
   private DeviceProperty properties;
   private long timestamp;
   private boolean success;
@@ -53,7 +54,7 @@ public class MeasurementResult {
   /**
    * @param deviceProperty
    * @param type
-   * @param timestamp
+   * @param timeStamp
    * @param success
    * @param measurementDesc
    */
@@ -68,6 +69,7 @@ public class MeasurementResult {
     this.success = success;
     this.parameters = measurementDesc;
     this.parameters.parameters = null;
+    this.accountName = SpeedometerApp.getCurrentApp().getSelectedAccount();
     this.values = new HashMap<String, String>();
   }
  
@@ -88,20 +90,28 @@ public class MeasurementResult {
     StringBuilderPrinter printer = new StringBuilderPrinter(builder);
     Formatter format = new Formatter();
     try {
-      if (type == PingTask.TYPE) {
-        getPingResult(printer, values);
-      } else if (type == HttpTask.TYPE) {
-        getHttpResult(printer, values);
-      } else if (type == DnsLookupTask.TYPE) {
-        getDnsResult(printer, values);
-      } else if (type == TracerouteTask.TYPE) {
-        getTracerouteResult(printer, values);
-      } else if (type == UDPBurstTask.TYPE) {
-        getUDPBurstResult(printer, values);
-      } else if (type == TCPThroughputTask.TYPE) {
-        getTCPThroughputResult(printer, values);
-      } else {
-        Logger.e("Failed to get results for unknown measurement type " + type);
+      switch (type) {
+        case PingTask.TYPE:
+          getPingResult(printer, values);
+          break;
+        case HttpTask.TYPE:
+          getHttpResult(printer, values);
+          break;
+        case DnsLookupTask.TYPE:
+          getDnsResult(printer, values);
+          break;
+        case TracerouteTask.TYPE:
+          getTracerouteResult(printer, values);
+          break;
+        case UDPBurstTask.TYPE:
+          getUDPBurstResult(printer, values);
+          break;
+        case TCPThroughputTask.TYPE:
+          getTCPThroughputResult(printer, values);
+          break;
+        default:
+          Logger.e("Failed to get results for unknown measurement type " + type);
+          break;
       }
       return builder.toString();
     } catch (NumberFormatException e) {
