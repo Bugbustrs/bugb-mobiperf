@@ -20,9 +20,9 @@
         android:debuggable="false"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light"
+        android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,HardcodedDebugMode">
-        <activity android:name=".MobiPerfSettings"></activity>
+        <activity android:name=".MobiPerfSettings" />
         <activity
             android:name=".SpeedometerApp"
             android:label="@string/app_name"
@@ -38,7 +38,7 @@
             android:name=".SplashScreenActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:theme="@android:style/Theme.Light.NoTitleBar">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,11 +48,11 @@
         <activity
             android:name=".SystemConsoleActivity"
             android:launchMode="singleTask"
-            android:theme="@android:style/Theme.Light.NoTitleBar"></activity>
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".MeasurementScheduler"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <receiver android:name=".WatchdogBootReceiver">
             <intent-filter>

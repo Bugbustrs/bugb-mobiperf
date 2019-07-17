@@ -196,9 +196,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         setContentView(R.layout.main);
         restoreDefaultAccount();
         if (selectedAccount == null) {
-            Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google", "com.google.android.legacyimap"}, null, null, null, null);
-            startActivityForResult(intent, REQUEST_ACCOUNTS);
-            consentDialogWrapper();
+            setUser();
         } else {
             // double check the user consent selection
             consentDialogWrapper();
@@ -501,5 +499,11 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         // Do stuff here.
         Log.i("FragmentAlertDialog", "Negative click!");
         quitApp();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void setUser(){
+        Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google", "com.google.android.legacyimap"}, null, null, null, null);
+        startActivityForResult(intent, REQUEST_ACCOUNTS);
     }
 }
