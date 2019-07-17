@@ -91,7 +91,7 @@ public class MeasurementCreationFragment extends Fragment {
     super.onCreate(savedInstanceState);
     v = inflater.inflate(layout.measurement_creation_main, container, false);
 
-    if ((v.getParent().getClass().getName().compareTo("SpeedometerApp") != 0))
+    if (v.getParent()!=null && (v.getParent().getClass().getName().compareTo("SpeedometerApp") != 0))
       throw new AssertionError();
     this.parent = (SpeedometerApp) v.getParent();
 

@@ -52,7 +52,7 @@ public class ResultsConsoleFragment extends Fragment {
   boolean userResultsActive = false;
 
   private View  v;
-  
+
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -146,11 +146,11 @@ public class ResultsConsoleFragment extends Fragment {
     super.onDestroy();
     v.getContext().unregisterReceiver(this.receiver);
   }
-  
+
   private synchronized void getConsoleContentFromScheduler() {
     Logger.d("ResultsConsoleFragment.getConsoleContentFromScheduler called");
     if (scheduler == null) {
-      SpeedometerApp parent = (SpeedometerApp) v.getParent();
+      SpeedometerApp parent = SpeedometerApp.getCurrentApp();
       scheduler = parent.getScheduler();
     }
     // Scheduler may have not had time to start yet. When it does, the intent above will call this

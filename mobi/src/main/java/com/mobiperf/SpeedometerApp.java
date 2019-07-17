@@ -35,7 +35,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -70,6 +69,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     private BroadcastReceiver receiver;
     TextView statusBar, statsBar;
 
+    private static SpeedometerApp speedometerApp;
     //This is our tablayout
     private TabLayout tabLayout;
 
@@ -199,6 +199,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     protected void onCreate(Bundle savedInstanceState) {
         Logger.d("onCreate called");
         super.onCreate(savedInstanceState);
+        speedometerApp = this;
         setContentView(R.layout.main);
         restoreDefaultAccount();
         if (selectedAccount == null) {
@@ -220,9 +221,12 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
 
         Resources res = getResources(); // Resource object to get Drawables
 
+        statusBar = findViewById(R.id.systemStatusBar);
+        statsBar = (TextView) findViewById(R.id.systemStatsBar);
+
         //Adding toolbar to the activity
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
         //Initializing the tablayout
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
@@ -328,7 +332,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     }
 
     private Dialog showConsentDialog() {
-        android.support.v7.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         final TextView message = new TextView(this);
         final SpannableString s = new SpannableString(getString(R.string.terms));
@@ -521,5 +525,9 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
+    }
+
+    public static SpeedometerApp getCurrentApp(){
+        return speedometerApp;
     }
 }

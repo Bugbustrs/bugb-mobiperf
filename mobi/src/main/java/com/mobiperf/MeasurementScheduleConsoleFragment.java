@@ -67,7 +67,7 @@ public class MeasurementScheduleConsoleFragment extends Fragment {
     v = inflater.inflate(R.layout.measurement_schedule, container, false);
     
     taskMap = new HashMap<String, String>();
-    parent = (SpeedometerApp) this.v.getParent();
+    parent = SpeedometerApp.getCurrentApp();
     consoleContent = new ArrayAdapter<String>(v.getContext(), R.layout.list_item);
     this.consoleView = (ListView) this.v.findViewById(R.id.measurementScheduleConsole);
     this.consoleView.setAdapter(consoleContent);

@@ -3,9 +3,16 @@
     <!-- Base application theme. -->
     <!-- changing it to no actionbar -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-            <item name="colorPrimary">#FF0000</item>
-            <item name="colorPrimaryDark">#0000FF</item>
-            <item name="colorAccent">#00FF00</item>
-            <item name="actionMenuTextColor">#0000FF</item>
+        <item name="colorPrimary">#FF0000</item>
+        <item name="colorPrimaryDark">#0000FF</item>
+        <item name="colorAccent">#00FF00</item>
+        <item name="actionMenuTextColor">#0000FF</item>
+    </style>
+
+    <style name="ToolBarStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+    <style name="TabAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
 </resources>
