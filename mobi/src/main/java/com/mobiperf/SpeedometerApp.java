@@ -486,7 +486,6 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     }
 
     public void doPositiveClick() {
-        // Do stuff here.
         Log.i("FragmentAlertDialog", "Positive click!");
         recordUserConsent();
         // Enable auto start on boot.
@@ -496,7 +495,6 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     }
 
     public void doNegativeClick() {
-        // Do stuff here.
         Log.i("FragmentAlertDialog", "Negative click!");
         quitApp();
     }
