@@ -65,7 +65,8 @@ public class MeasurementScheduleConsoleFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     v = inflater.inflate(R.layout.measurement_schedule, container, false);
-    
+    setHasOptionsMenu(true);
+
     taskMap = new HashMap<String, String>();
     parent = SpeedometerApp.getCurrentApp();
     consoleContent = new ArrayAdapter<String>(v.getContext(), R.layout.list_item);

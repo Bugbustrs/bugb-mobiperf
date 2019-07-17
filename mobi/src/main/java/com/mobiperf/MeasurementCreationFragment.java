@@ -90,10 +90,10 @@ public class MeasurementCreationFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     v = inflater.inflate(layout.measurement_creation_main, container, false);
-
+    setHasOptionsMenu(true);
     if (v.getParent()!=null && (v.getParent().getClass().getName().compareTo("SpeedometerApp") != 0))
       throw new AssertionError();
-    this.parent = (SpeedometerApp) v.getParent();
+    this.parent = SpeedometerApp.getCurrentApp();
 
     /*set the value of MEASUREMENT_CREATION_CONTEXT to this*/
 
@@ -290,7 +290,7 @@ public class MeasurementCreationFragment extends Fragment {
             break;
           }
           case DnsLookupTask.TYPE: {
-            EditText dnsTargetText = v.findViewById(id.dnsLookupText);
+            EditText dnsTargetText = getView().findViewById(id.dnsLookupText);
             Map<String, String> params = new HashMap<>();
             params.put("target", dnsTargetText.getText().toString());
             DnsLookupDesc desc = new DnsLookupDesc(null,
@@ -364,7 +364,7 @@ public class MeasurementCreationFragment extends Fragment {
              */
             v.getContext().sendBroadcast(
                 new UpdateIntent("", UpdateIntent.MEASUREMENT_ACTION));
-            SpeedometerApp parent = (SpeedometerApp) v.getParent();
+            SpeedometerApp parent =SpeedometerApp.getCurrentApp();
             String toastStr =
                 MeasurementCreationFragment.this.getString(string.userMeasurementSuccessToast);
             if (showLengthWarning) {
@@ -472,7 +472,7 @@ public class MeasurementCreationFragment extends Fragment {
         temp[i]= list.get(i);
       }
       Logger.i("Requesting permissions from the device");
-      ActivityCompat.requestPermissions((AppCompatActivity) v.getParent(),temp,0);
+      ActivityCompat.requestPermissions(SpeedometerApp.getCurrentApp(),temp,0);
     }
   }
 

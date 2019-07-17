@@ -57,6 +57,7 @@ public class ResultsConsoleFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     v = inflater.inflate(R.layout.results, container, false);
+    setHasOptionsMenu(true);
     Logger.d("ResultsConsoleFragment.onCreate called");
     IntentFilter filter = new IntentFilter();
     filter.addAction(UpdateIntent.SCHEDULER_CONNECTED_ACTION);

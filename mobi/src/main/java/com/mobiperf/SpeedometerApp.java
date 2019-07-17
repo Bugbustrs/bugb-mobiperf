@@ -32,12 +32,14 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -60,8 +62,6 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     private boolean userConsented = false;
     private String selectedAccount = null;
 
-    private static final int DIALOG_CONSENT = 0;
-    private static final int DIALOG_ACCOUNT_SELECTOR = 1;
     private MeasurementScheduler scheduler;
     private TabHost tabHost;
     private boolean isBound = false;
@@ -138,6 +138,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
@@ -205,6 +206,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         if (selectedAccount == null) {
             Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google", "com.google.android.legacyimap"}, null, null, null, null);
             startActivityForResult(intent, REQUEST_ACCOUNTS);
+            consentDialogWrapper();
         } else {
             // double check the user consent selection
             consentDialogWrapper();
@@ -222,7 +224,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         Resources res = getResources(); // Resource object to get Drawables
 
         statusBar = findViewById(R.id.systemStatusBar);
-        statsBar = (TextView) findViewById(R.id.systemStatsBar);
+        statsBar = findViewById(R.id.systemStatsBar);
 
         //Adding toolbar to the activity
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -249,22 +251,31 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         //Adding onTabSelectedListener to swipe views
         tabLayout.addOnTabSelectedListener(this);
 
+        // We only need one instance of the scheduler thread
+        Intent intent = new Intent(this, MeasurementScheduler.class);
+        this.startService(intent);
 
+        this.receiver = new BroadcastReceiver() {
+            @Override
+            // All onXyz() callbacks are single threaded
+            public void onReceive(Context context, Intent intent) {
+                // Update the status bar on SYSTEM_STATUS_UPDATE_ACTION intents
+                String statusMsg = intent.getStringExtra(UpdateIntent.STATUS_MSG_PAYLOAD);
+                if (statusMsg != null) {
+                    updateStatusBar(statusMsg);
+                } else if (scheduler != null) {
+                    initializeStatusBar();
+                }
+
+                String statsMsg = intent.getStringExtra(UpdateIntent.STATS_MSG_PAYLOAD);
+                if (statsMsg != null) {
+                    updateStatsBar(statsMsg);
+                }
+            }
+        };
         IntentFilter filter = new IntentFilter();
         filter.addAction(UpdateIntent.SYSTEM_STATUS_UPDATE_ACTION);
         this.registerReceiver(this.receiver, filter);
-    }
-
-    protected Dialog onCreateDialog(int id) {
-        Logger.d("onCreateDialog called");
-        switch (id) {
-            case DIALOG_CONSENT:
-                return showConsentDialog();
-            case DIALOG_ACCOUNT_SELECTOR:
-                return showAccountDialog();
-            default:
-                return null;
-        }
     }
 
     private void initializeStatusBar() {
@@ -306,62 +317,6 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
             isBindingToService = true;
         }
     }
-
-    private Dialog showAccountDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Authentication Account");
-        final CharSequence[] items = AccountSelector.getAccountList(this.getApplicationContext());
-
-        builder.setCancelable(false)
-                .setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int item) {
-                        Toast.makeText(getApplicationContext(),
-                                items[item] + " " + getString(R.string.selectedString), Toast.LENGTH_SHORT).show();
-
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString(Config.PREF_KEY_SELECTED_ACCOUNT, (String) items[item]);
-                        editor.commit();
-                        dialog.dismiss();
-                        // need consent dialog when user first perform the account selection
-                        consentDialogWrapper();
-                    }
-                });
-        return builder.create();
-    }
-
-    private Dialog showConsentDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        final TextView message = new TextView(this);
-        final SpannableString s = new SpannableString(getString(R.string.terms));
-        Linkify.addLinks(s, Linkify.WEB_URLS);
-        message.setText(s);
-        message.setTextColor(Color.WHITE);
-        message.setLinkTextColor(Color.CYAN);
-        message.setTextSize(17);
-        message.setMovementMethod(LinkMovementMethod.getInstance());
-
-        builder.setView(message)
-                .setCancelable(false)
-                .setPositiveButton("Okay, got it", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        recordUserConsent();
-                        // Enable auto start on boot.
-                        setStartOnBoot(true);
-                        // Force a checkin now since the one initiated by the scheduler was likely skipped.
-                        doCheckin();
-                    }
-                })
-                .setNegativeButton("No thanks", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        quitApp();
-                    }
-                });
-        return builder.create();
-    }
-
 
     @Override
     protected void onStart() {
@@ -438,7 +393,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
                 getApplicationContext());
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(Config.PREF_KEY_CONSENTED, userConsented);
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -466,7 +421,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         restoreConsentState();
         if (!userConsented) {
             // Show the consent dialog. After user select the content
-            showDialog(DIALOG_CONSENT);
+           showDialog();
         }
     }
 
@@ -479,6 +434,10 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
             } else {
                 selectedAccount = "Anonymous";
             }
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(Config.PREF_KEY_SELECTED_ACCOUNT, selectedAccount);
+            editor.apply();
         }
     }
 
@@ -529,5 +488,26 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
 
     public static SpeedometerApp getCurrentApp(){
         return speedometerApp;
+    }
+
+    void showDialog() {
+        DialogFragment newFragment = ConsentAlertDialog.newInstance();
+        newFragment.show(getSupportFragmentManager(), "dialog");
+    }
+
+    public void doPositiveClick() {
+        // Do stuff here.
+        Log.i("FragmentAlertDialog", "Positive click!");
+        recordUserConsent();
+        // Enable auto start on boot.
+        setStartOnBoot(true);
+        // Force a checkin now since the one initiated by the scheduler was likely skipped.
+        doCheckin();
+    }
+
+    public void doNegativeClick() {
+        // Do stuff here.
+        Log.i("FragmentAlertDialog", "Negative click!");
+        quitApp();
     }
 }
