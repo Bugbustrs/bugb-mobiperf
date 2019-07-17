@@ -28,12 +28,11 @@ import com.mobiperf.R;
 /**
  * Activity that handles user preferences
  */
-public class SpeedometerPreferenceActivity extends PreferenceFragmentCompat {
+public class SpeedometerPreferenceFragment extends PreferenceFragmentCompat {
 
 
   @Override
   public void onCreatePreferences(Bundle bundle, String s) {
-    super.onCreate(bundle);
     addPreferencesFromResource(R.xml.preference);
 
     Preference intervalPref = findPreference(getString(R.string.checkinIntervalPrefKey));
@@ -42,7 +41,7 @@ public class SpeedometerPreferenceActivity extends PreferenceFragmentCompat {
     /* This should never occur. */
     if (intervalPref == null || batteryPref == null) {
       Logger.w("Cannot find some of the preferences");
-//      Toast.makeText(SpeedometerPreferenceActivity.this,
+//      Toast.makeText(SpeedometerPreferenceFragment.this,
 //        getString(R.string.menuInitializationExceptionToast), Toast.LENGTH_LONG).show();
       return;
     }
@@ -55,7 +54,7 @@ public class SpeedometerPreferenceActivity extends PreferenceFragmentCompat {
           try {
             Integer val = Integer.parseInt((String) newValue);
             if (val <= 0 || val > 24) {
-//              Toast.makeText(SpeedometerPreferenceActivity.this,
+//              Toast.makeText(SpeedometerPreferenceFragment.this,
 //                  getString(R.string.invalidCheckinIntervalToast), Toast.LENGTH_LONG).show();
               return false;
             }
@@ -71,7 +70,7 @@ public class SpeedometerPreferenceActivity extends PreferenceFragmentCompat {
           try {
             Integer val = Integer.parseInt((String) newValue);
             if (val < 0 || val > 100) {
-//              Toast.makeText(SpeedometerPreferenceActivity.this,
+//              Toast.makeText(SpeedometerPreferenceFragment.this,
 //                  getString(R.string.invalidBatteryToast), Toast.LENGTH_LONG).show();
               return false;
             }

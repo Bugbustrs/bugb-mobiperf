@@ -15,17 +15,14 @@
 package com.mobiperf;
 
 import android.accounts.AccountManager;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -34,18 +31,14 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.SpannableString;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TabHost;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mobiperf.MeasurementScheduler.SchedulerBinder;
 
@@ -138,7 +131,6 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
@@ -176,7 +168,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
                 return true;
             }
             case R.id.menuSettings: {
-                Intent settingsActivity = new Intent(getBaseContext(), SpeedometerPreferenceActivity.class);
+                Intent settingsActivity = new Intent(getBaseContext(), MobiPerfSettings.class);
                 startActivity(settingsActivity);
                 return true;
             }
@@ -227,8 +219,8 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         statsBar = findViewById(R.id.systemStatsBar);
 
         //Adding toolbar to the activity
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         //Initializing the tablayout
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
