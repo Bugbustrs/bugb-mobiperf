@@ -11,8 +11,10 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/cyan"
-        android:minHeight="?attr/actionBarSize"/>
+        android:background="@color/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/AppTheme"/>
+
     <TabHost
         android:id="@android:id/tabhost"
         android:layout_width="match_parent"
@@ -27,7 +29,9 @@
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="?attr/actionBarSize" />
+                android:minHeight="?attr/actionBarSize"
+                android:background="@color/colorSecondary"
+                android:theme="@style/TabAppTheme"/>
 
             <TextView
                 android:id="@+id/systemStatusBar"

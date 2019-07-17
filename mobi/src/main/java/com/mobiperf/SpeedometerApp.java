@@ -505,5 +505,6 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
     public void setUser(){
         Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google", "com.google.android.legacyimap"}, null, null, null, null);
         startActivityForResult(intent, REQUEST_ACCOUNTS);
+        consentDialogWrapper();
     }
 }

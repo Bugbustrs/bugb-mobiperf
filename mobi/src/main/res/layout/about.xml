@@ -23,7 +23,7 @@
             android:gravity="center_vertical"
             android:text="@string/aboutTitle"
             android:textColor="@color/white"
-            android:textColorLink="@color/cyan"
+            android:textColorLink="@color/task_bar"
             android:textSize="30sp" />
 
 
@@ -42,7 +42,7 @@
             android:singleLine="false"
             android:text="@string/aboutText"
             android:textColor="@color/white"
-            android:textColorLink="@color/cyan"
+            android:textColorLink="@color/task_bar"
             android:textSize="26sp" />
 
         <TextView
@@ -59,7 +59,7 @@
             android:autoLink="all"
             android:text="@string/aboutContact"
             android:textColor="@color/white"
-            android:textColorLink="@color/cyan"
+            android:textColorLink="@color/task_bar"
             android:textSize="22sp" />
     </LinearLayout>
 
