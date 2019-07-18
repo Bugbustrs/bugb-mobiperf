@@ -146,9 +146,13 @@ public class PhoneUtils {
     this.context = context;
     powerBroadcastReceiver = new PowerStateChangeReceiver();
     // Registers a receiver for battery change events.
-    Intent powerIntent = globalContext.registerReceiver(powerBroadcastReceiver,
-            new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-    updateBatteryStat(powerIntent);
+    if(globalContext!=null) {
+      Intent powerIntent = globalContext.registerReceiver(powerBroadcastReceiver,
+              new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+      if (powerIntent != null) {
+        updateBatteryStat(powerIntent);
+      }
+    }
 
     networkBroadcastReceiver = new ConnectivityChangeReceiver();
     // Registers a receiver for network change events.

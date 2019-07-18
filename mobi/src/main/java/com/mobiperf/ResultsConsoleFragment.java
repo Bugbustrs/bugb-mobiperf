@@ -97,16 +97,17 @@ public class ResultsConsoleFragment extends Fragment {
                         Logger.d("progress update");
                         switchBetweenResults(true);
                     }
+                    assert ResultsConsoleFragment.this.getFragmentManager() != null;
+                    ResultsConsoleFragment.this.getFragmentManager()
+                            .beginTransaction()
+                            .detach(ResultsConsoleFragment.this)
+                            .attach(ResultsConsoleFragment.this)
+                            .commit();
                     upgradeProgress(progress, Config.MAX_PROGRESS_BAR_VALUE);
                 } else if (intent.getAction().equals(UpdateIntent.SCHEDULER_CONNECTED_ACTION)) {
                     Logger.d("scheduler connected");
                     switchBetweenResults(userResultsActive);
                 }
-                getFragmentManager()
-                        .beginTransaction()
-                        .detach(ResultsConsoleFragment.this)
-                        .attach(ResultsConsoleFragment.this)
-                        .commit();
             }
         };
         getActivity().getApplicationContext().registerReceiver(this.receiver, filter);
@@ -167,9 +168,10 @@ public class ResultsConsoleFragment extends Fragment {
             for (String result : scheduler_results) {
                 results.add(result);
             }
-            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-                public void run() {
-                    results.notifyDataSetChanged();
+            if(getActivity()!=null)
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        results.notifyDataSetChanged();
                 }
             });
         }
