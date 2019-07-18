@@ -237,9 +237,28 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
 
         //Adding adapter to pager
         viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
 
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                TabLayout.Tab tab = tabLayout.getTabAt(i);
+                if (tab != null) {
+                    tab.select();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
         //Adding onTabSelectedListener to swipe views
         tabLayout.addOnTabSelectedListener(this);
+
 
         // We only need one instance of the scheduler thread
         Intent intent = new Intent(this, MeasurementScheduler.class);

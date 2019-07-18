@@ -194,7 +194,7 @@ public class MeasurementCreationFragment extends Fragment {
 
   private void hideKeyboard(EditText textBox) {
     if (textBox != null) {
-      InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+      InputMethodManager imm = (InputMethodManager) getActivity().getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
       imm.hideSoftInputFromWindow(textBox.getWindowToken(), 0);
     }
   }
@@ -255,7 +255,7 @@ public class MeasurementCreationFragment extends Fragment {
                     Config.DEFAULT_USER_MEASUREMENT_COUNT,
                     MeasurementTask.USER_PRIORITY,
                     params);
-            newTask = new PingTask(desc, v.getContext().getApplicationContext());
+            newTask = new PingTask(desc, getActivity().getApplicationContext());
             break;
           }
           case HttpTask.TYPE: {
@@ -270,7 +270,7 @@ public class MeasurementCreationFragment extends Fragment {
                     Config.DEFAULT_USER_MEASUREMENT_COUNT,
                     MeasurementTask.USER_PRIORITY,
                     params);
-            newTask = new HttpTask(desc, v.getContext().getApplicationContext());
+            newTask = new HttpTask(desc, getActivity().getApplicationContext());
             break;
           }
           case TracerouteTask.TYPE: {
@@ -285,7 +285,7 @@ public class MeasurementCreationFragment extends Fragment {
                     MeasurementTask.USER_PRIORITY,
                     params);
             newTask =
-                    new TracerouteTask(desc, v.getContext().getApplicationContext());
+                    new TracerouteTask(desc, getActivity().getApplicationContext());
             showLengthWarning = true;
             break;
           }
@@ -301,7 +301,7 @@ public class MeasurementCreationFragment extends Fragment {
                     MeasurementTask.USER_PRIORITY,
                     params);
             newTask =
-                    new DnsLookupTask(desc, v.getContext().getApplicationContext());
+                    new DnsLookupTask(desc, getActivity().getApplicationContext());
             break;
           }
           case UDPBurstTask.TYPE: {
@@ -334,7 +334,7 @@ public class MeasurementCreationFragment extends Fragment {
                     MeasurementTask.USER_PRIORITY,
                     params);
             newTask = new UDPBurstTask(desc
-                    , v.getContext().getApplicationContext());
+                    , getActivity().getApplicationContext());
             break;
           }
           case TCPThroughputTask.TYPE: {
@@ -349,7 +349,7 @@ public class MeasurementCreationFragment extends Fragment {
                     MeasurementTask.USER_PRIORITY,
                     params);
             newTask = new TCPThroughputTask(desc,
-                    v.getContext().getApplicationContext());
+                    getActivity().getApplicationContext());
             showLengthWarning = true;
             break;
           }
@@ -362,7 +362,7 @@ public class MeasurementCreationFragment extends Fragment {
              * Broadcast an intent with MEASUREMENT_ACTION so that the scheduler will immediately
              * handles the user measurement
              */
-            v.getContext().sendBroadcast(
+           getActivity().getApplicationContext().sendBroadcast(
                 new UpdateIntent("", UpdateIntent.MEASUREMENT_ACTION));
             SpeedometerApp parent =SpeedometerApp.getCurrentApp();
             String toastStr =
@@ -396,7 +396,7 @@ public class MeasurementCreationFragment extends Fragment {
     intent.setAction(UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION);
     intent.putExtra(
         UpdateIntent.STATUS_MSG_PAYLOAD, getString(string.userMeasurementBusySchedulerToast));
-    v.getContext().sendBroadcast(intent);
+    getActivity().getApplicationContext().sendBroadcast(intent);
   }
 
   private class EditBoxFocusChangeListener implements OnFocusChangeListener {

@@ -102,8 +102,11 @@ public interface Config {
 
 
   /** Constants to access the server **/
-  public static String SERVER_ADDRESS="";
+  public static String SERVER_ADDRESS="196.24.165.165";
   public static int SERVER_PORT=7000;
+
+  public static String CHECKIN_SEVER_ADDRESS = "196.42.107.38";
+  public static int CHECKIN_SERVER_PORT= 8000;
 
   /** Enum for all the permissions that we need*/
   public static enum PERMISSION_IDS {

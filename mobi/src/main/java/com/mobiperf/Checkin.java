@@ -351,7 +351,7 @@ public class Checkin {
    */
   private String serviceRequest(String request, String jsonString)
           throws IOException {
-    Socket server= new Socket(Config.SERVER_ADDRESS,Config.SERVER_PORT);
+    Socket server= new Socket(Config.CHECKIN_SEVER_ADDRESS,Config.CHECKIN_SERVER_PORT);
     PrintWriter out = new PrintWriter(server.getOutputStream());
     if(request.equals(CHECK_IN_TAG)) {
       JSONObject checkInRequest=generateCheckInJson();

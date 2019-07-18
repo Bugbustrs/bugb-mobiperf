@@ -62,7 +62,7 @@ public class ResultsConsoleFragment extends Fragment {
         filter.addAction(UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION);
 
         this.consoleView = v.findViewById(R.id.resultConsole);
-        this.results = new ArrayAdapter<String>(v.getContext(), R.layout.list_item);
+        this.results = new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.list_item);
         this.consoleView.setAdapter(this.results);
         this.progressBar = (ProgressBar) v.findViewById(R.id.progress_bar);
         this.progressBar.setMax(Config.MAX_PROGRESS_BAR_VALUE);
@@ -148,7 +148,7 @@ public class ResultsConsoleFragment extends Fragment {
     public void onDestroy() {
         Logger.d("ResultsConsoleFragment.onDestroy called");
         super.onDestroy();
-        v.getContext().unregisterReceiver(this.receiver);
+        getActivity().getApplicationContext().unregisterReceiver(this.receiver);
     }
 
     private synchronized void getConsoleContentFromScheduler() {
