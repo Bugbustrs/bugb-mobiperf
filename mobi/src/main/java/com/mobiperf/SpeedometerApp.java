@@ -271,6 +271,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
                 // Update the status bar on SYSTEM_STATUS_UPDATE_ACTION intents
                 String statusMsg = intent.getStringExtra(UpdateIntent.STATUS_MSG_PAYLOAD);
                 if (statusMsg != null) {
+                    Log.d("Broadcast information", statusMsg);
                     updateStatusBar(statusMsg);
                 } else if (scheduler != null) {
                     initializeStatusBar();
@@ -430,7 +431,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         restoreConsentState();
         if (!userConsented) {
             // Show the consent dialog. After user select the content
-           showDialog();
+            showDialog();
         }
     }
 
@@ -495,7 +496,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
 
     }
 
-    public static SpeedometerApp getCurrentApp(){
+    public static SpeedometerApp getCurrentApp() {
         return speedometerApp;
     }
 
@@ -518,11 +519,12 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
         quitApp();
     }
 
-    String getSelectedAccount(){
+    String getSelectedAccount() {
         return selectedAccount;
     }
+
     @RequiresApi(api = Build.VERSION_CODES.M)
-    public void setUser(){
+    public void setUser() {
         Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google", "com.google.android.legacyimap"}, null, null, null, null);
         startActivityForResult(intent, REQUEST_ACCOUNTS);
         consentDialogWrapper();

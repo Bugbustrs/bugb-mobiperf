@@ -245,7 +245,7 @@ public class MeasurementCreationFragment extends Fragment {
       try {
         switch (measurementTypeUnderEdit) {
           case PingTask.TYPE: {
-            EditText pingTargetText = v.findViewById(id.pingTargetText);
+            EditText pingTargetText = getView().findViewById(id.pingTargetText);
             Map<String, String> params = new HashMap<>();
             params.put("target", pingTargetText.getText().toString());
             PingDesc desc = new PingDesc(null,
@@ -259,7 +259,7 @@ public class MeasurementCreationFragment extends Fragment {
             break;
           }
           case HttpTask.TYPE: {
-            EditText httpUrlText = v.findViewById(id.httpUrlText);
+            EditText httpUrlText = getView().findViewById(id.httpUrlText);
             Map<String, String> params = new HashMap<>();
             params.put("url", httpUrlText.getText().toString());
             params.put("method", "get");
@@ -274,7 +274,7 @@ public class MeasurementCreationFragment extends Fragment {
             break;
           }
           case TracerouteTask.TYPE: {
-            EditText targetText = v.findViewById(id.tracerouteTargetText);
+            EditText targetText = getView().findViewById(id.tracerouteTargetText);
             Map<String, String> params = new HashMap<>();
             params.put("target", targetText.getText().toString());
             TracerouteDesc desc = new TracerouteDesc(null,
@@ -312,17 +312,17 @@ public class MeasurementCreationFragment extends Fragment {
             params.put("direction", udpDir);
             // Get UDP Burst packet size
             EditText UDPBurstPacketSizeText =
-                    v.findViewById(id.UDPBurstPacketSizeText);
+                    getView().findViewById(id.UDPBurstPacketSizeText);
             params.put("packet_size_byte"
                     , UDPBurstPacketSizeText.getText().toString());
             // Get UDP Burst packet count
             EditText UDPBurstPacketCountText =
-                    v.findViewById(id.UDPBurstPacketCountText);
+                    getView().findViewById(id.UDPBurstPacketCountText);
             params.put("packet_burst"
                     , UDPBurstPacketCountText.getText().toString());
             // Get UDP Burst interval
             EditText UDPBurstIntervalText =
-                    v.findViewById(id.UDPBurstIntervalText);
+                    getView().findViewById(id.UDPBurstIntervalText);
             params.put("udp_interval"
                     , UDPBurstIntervalText.getText().toString());
 
@@ -370,19 +370,19 @@ public class MeasurementCreationFragment extends Fragment {
             if (showLengthWarning) {
               toastStr += newTask.getDescriptor() + " measurements can be long. Please be patient.";
             }
-            Toast.makeText(v.getContext(), toastStr, Toast.LENGTH_LONG).show();
+            Toast.makeText(getView().getContext(), toastStr, Toast.LENGTH_LONG).show();
 
             if (scheduler.getCurrentTask() != null) {
               showBusySchedulerStatus();
             }
           } else {
-            Toast.makeText(v.getContext(), string.userMeasurementFailureToast,
+            Toast.makeText(getView().getContext(), string.userMeasurementFailureToast,
                 Toast.LENGTH_LONG).show();
           }
         }
       } catch (InvalidParameterException e) {
         Logger.e("InvalidParameterException when creating user measurements", e);
-        Toast.makeText(v.getContext(),
+        Toast.makeText(getView().getContext(),
                        string.invalidParameterExceptionMeasurementToast +
                        ": " + e.getMessage(),
                        Toast.LENGTH_LONG).show();

@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -233,6 +234,7 @@ public class MeasurementScheduler extends Service {
                   .getStringExtra(UpdateIntent.RESULT_PAYLOAD));
 
             }
+            updateStatus();
             updateResultsConsole(intent);
           }
         } else if (intent.getAction().equals(UpdateIntent.MSG_ACTION)) {
@@ -645,6 +647,7 @@ public class MeasurementScheduler extends Service {
         completedMeasurementCnt + " completed, " + failedMeasurementCnt
             + " failed";
     intent.putExtra(UpdateIntent.STATS_MSG_PAYLOAD, statsMsg);
+    Log.d("BroadCast information", statsMsg);
     sendBroadcast(intent);
   }
 
@@ -1442,6 +1445,10 @@ public class MeasurementScheduler extends Service {
         insertStringToConsole(systemResults, msg);
       }
     }
+    intent = new Intent();
+    intent.setAction(UpdateIntent.RESULTS_UPDATE_VIEW);
+    sendBroadcast(intent);
+    Log.d("Refresh Results", "Broadcast the alert to refresh Result views");
   }
 
   /**

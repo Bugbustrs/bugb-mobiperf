@@ -49,7 +49,9 @@ public class UpdateIntent extends Intent {
   public static final String SCHEDULE_UPDATE_ACTION =
       PACKAGE_PREFIX + ".SCHEDULE_UPDATE_ACTION";
   public static final String RESULT_PAYLOAD = PACKAGE_PREFIX + ".RESULT_ACTION";
-  
+
+  //TO ALERT ALERT THE CONSOLE FRAGMENT TO UPDATE ITS view
+  public static final String RESULTS_UPDATE_VIEW = PACKAGE_PREFIX+".UPDATE_RESULT";
   /**
    * Creates an intent of the specified action with an optional message
    */

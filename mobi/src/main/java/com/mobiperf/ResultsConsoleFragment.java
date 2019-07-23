@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ public class ResultsConsoleFragment extends Fragment {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UpdateIntent.SCHEDULER_CONNECTED_ACTION);
         filter.addAction(UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION);
+        filter.addAction(UpdateIntent.RESULTS_UPDATE_VIEW);
 
         this.consoleView = v.findViewById(R.id.resultConsole);
         this.results = new ArrayAdapter<>(getActivity().getApplicationContext(), R.layout.list_item);
@@ -88,7 +90,7 @@ public class ResultsConsoleFragment extends Fragment {
             @Override
             // All onXyz() callbacks are single threaded
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION)) {
+                if (UpdateIntent.MEASUREMENT_PROGRESS_UPDATE_ACTION.equals(intent.getAction())) {
                     int progress = intent.getIntExtra(UpdateIntent.PROGRESS_PAYLOAD, Config.INVALID_PROGRESS);
                     int priority = intent.getIntExtra(UpdateIntent.TASK_PRIORITY_PAYLOAD,
                             MeasurementTask.INVALID_PRIORITY);
@@ -97,16 +99,13 @@ public class ResultsConsoleFragment extends Fragment {
                         Logger.d("progress update");
                         switchBetweenResults(true);
                     }
-                    assert ResultsConsoleFragment.this.getFragmentManager() != null;
-                    ResultsConsoleFragment.this.getFragmentManager()
-                            .beginTransaction()
-                            .detach(ResultsConsoleFragment.this)
-                            .attach(ResultsConsoleFragment.this)
-                            .commit();
                     upgradeProgress(progress, Config.MAX_PROGRESS_BAR_VALUE);
-                } else if (intent.getAction().equals(UpdateIntent.SCHEDULER_CONNECTED_ACTION)) {
+                } else if (UpdateIntent.SCHEDULER_CONNECTED_ACTION.equals(intent.getAction())) {
                     Logger.d("scheduler connected");
                     switchBetweenResults(userResultsActive);
+                }else if(UpdateIntent.RESULTS_UPDATE_VIEW.equals(intent.getAction())){
+                    Log.d("Refresh Results", "Updating the results views");
+                    getConsoleContentFromScheduler();
                 }
             }
         };
@@ -172,6 +171,7 @@ public class ResultsConsoleFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
                         results.notifyDataSetChanged();
+                        Log.i("Update UI","Notified");
                 }
             });
         }
