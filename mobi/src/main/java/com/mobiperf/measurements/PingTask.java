@@ -58,7 +58,7 @@ import com.mobiperf.SpeedometerApp;
  */
 public class PingTask extends MeasurementTask {
   // Type name for internal use
-  public static final String TYPE = "ping";
+  public static final String TYPE = "PING";
   // Human readable name for the task
   public static final String DESCRIPTOR = "ping";
   /* Default payload size of the ICMP packet, plus the 8-byte ICMP header resulting in a total of 

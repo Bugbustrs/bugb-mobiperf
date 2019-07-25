@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class DnsLookupTask extends MeasurementTask {
   // Type name for internal use
-  public static final String TYPE = "dns_lookup";
+  public static final String TYPE = "DNS_LOOKUP";
   // Human readable name for the task
   public static final String DESCRIPTOR = "DNS lookup";
   

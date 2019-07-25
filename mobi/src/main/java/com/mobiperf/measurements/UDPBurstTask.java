@@ -52,7 +52,7 @@ import java.util.Map;
  * of each packet is packetSizeByte
  */
 public class UDPBurstTask extends MeasurementTask {
-  public static final String TYPE = "udp_burst";
+  public static final String TYPE = "UDP_BURST";
   public static final String DESCRIPTOR = "UDP Burst";
   
   private static final int DEFAULT_PORT = 31341;
