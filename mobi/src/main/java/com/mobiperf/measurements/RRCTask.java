@@ -77,7 +77,7 @@ import com.mobiperf.util.Util;
  */
 public class RRCTask extends MeasurementTask {
   // Type name for internal use
-  public static final String TYPE = "RRC";
+  public static final String TYPE = "rrc";
   // Human readable name for the task
   public static final String DESCRIPTOR = "rrc";
   public static String TAG = "MobiPerf_RRC_INFERENCE";

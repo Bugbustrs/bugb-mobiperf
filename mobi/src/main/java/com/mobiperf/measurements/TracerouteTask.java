@@ -45,7 +45,7 @@ import com.mobiperf.MeasurementTask;
  */
 public class TracerouteTask extends MeasurementTask {
   // Type name for internal use
-  public static final String TYPE = "TRACEROUTE";
+  public static final String TYPE = "traceroute";
   // Human readable name for the task
   public static final String DESCRIPTOR = "traceroute";
   /* Default payload size of the ICMP packet, plus the 8-byte ICMP header resulting in a total of 

@@ -46,7 +46,7 @@ public class TCPThroughputTask extends MeasurementTask {
   public static final int PORT_DOWNLINK = 6001;
   public static final int PORT_UPLINK = 6002;
   public static final int PORT_CONFIG = 6003;
-  public static final String TYPE = "TCP_SPEED_TEST";
+  public static final String TYPE = "tcpthroughput";
 
   // Timing related
   public final int BUFFER_SIZE = 5000;
