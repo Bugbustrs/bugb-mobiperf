@@ -100,7 +100,7 @@ public interface Config {
 
 
   /** Constants to access the server **/
-  String SERVER_ADDRESS="196.24.161.73";
+  String SERVER_ADDRESS="196.24.183.18";
   int SERVER_PORT=7000;
 
   /** Enum for all the permissions that we need*/
