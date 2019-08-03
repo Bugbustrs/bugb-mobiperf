@@ -74,7 +74,7 @@ import javax.net.ssl.X509TrustManager;
  * Handles checkins with the SpeedometerApp server.
  */
 public class Checkin {
-    private static final String CHECK_IN_TAG = "checkIn";
+    private static final String CHECK_IN_TAG = "CHECKIN";
     private static final int POST_TIMEOUT_MILLISEC = 20 * 1000;
     private Context context;
     private Date lastCheckin;
@@ -355,15 +355,17 @@ public class Checkin {
      */
     private String serviceRequest(String request, String jsonString)
             throws IOException {
-        Socket server = new Socket(Config.SERVER_ADDRESS, Config.SERVER_PORT);
-        PrintWriter out = new PrintWriter(server.getOutputStream());
+        Logger.d("ServiceRequest() Called");
+        Socket serverSocket = new Socket(Config.SERVER_ADDRESS, Config.SERVER_PORT);
+        Logger.d("Server Socket Connection Established");
+        PrintWriter out = new PrintWriter(serverSocket.getOutputStream());
         if (request.equals(CHECK_IN_TAG)) {
             JSONObject checkInRequest = generateCheckInJson();
             out.println(checkInRequest.toString());
             out.flush();
             Logger.d(checkInRequest.toString());
         }
-        Scanner in = new Scanner(server.getInputStream());
+        Scanner in = new Scanner(serverSocket.getInputStream());
         String result = "";
         while (true) {
             if (in.hasNextLine()) {
@@ -372,7 +374,7 @@ public class Checkin {
             }
         }
         Logger.d("the result is \n" + result);
-        server.close();
+        serverSocket.close();
         return result;
     }
         public JSONObject generateCheckInJson () {
