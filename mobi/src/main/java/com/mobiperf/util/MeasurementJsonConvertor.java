@@ -15,6 +15,8 @@
 
 package com.mobiperf.util;
 
+import android.content.Context;
+
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,10 +30,6 @@ import com.google.gson.JsonSerializer;
 import com.mobiperf.Logger;
 import com.mobiperf.MeasurementDesc;
 import com.mobiperf.MeasurementTask;
-import com.mobiperf.SpeedometerApp;
-
-import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,7 +67,7 @@ public class MeasurementJsonConvertor {
     dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
   }
   
-  public static MeasurementTask makeMeasurementTaskFromJson(JSONObject json, Context context) 
+  public static MeasurementTask makeMeasurementTaskFromJson(JSONObject json, Context context)
       throws IllegalArgumentException {  
     try {
       String type = String.valueOf(json.getString("type"));
@@ -79,7 +77,7 @@ public class MeasurementJsonConvertor {
       Class descClass = (Class) getDescMethod.invoke(null, (Object[]) null);
       MeasurementDesc measurementDesc = (MeasurementDesc) gson.fromJson(json.toString(), descClass);
       Object[] cstParams = {measurementDesc, context};
-      Constructor<MeasurementTask> constructor = 
+      Constructor<MeasurementTask> constructor =
           taskClass.getConstructor(MeasurementDesc.class, Context.class);
       return constructor.newInstance(cstParams);
     } catch (JSONException e) {
