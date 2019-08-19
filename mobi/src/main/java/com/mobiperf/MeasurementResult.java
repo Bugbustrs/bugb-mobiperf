@@ -73,27 +73,8 @@ public class MeasurementResult {
         this.success = success;
         this.parameters = measurementDesc;
         this.parameters.parameters = null;
-        this.accountName = hashUserName(SpeedometerApp.getCurrentApp().getSelectedAccount());
+        this.accountName =SpeedometerApp.getCurrentApp().getSelectedAccount();
         this.values = new HashMap<>();
-    }
-
-    private String hashUserName(String userName) {
-        if (userName.equals("Anonymous")) {
-            return userName;
-        }
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        byte[] hashInBytes = md.digest(userName.getBytes(StandardCharsets.UTF_8));
-
-        StringBuilder sb = new StringBuilder();
-        for (byte b : hashInBytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
     }
 
     /* Returns the type of this result */
