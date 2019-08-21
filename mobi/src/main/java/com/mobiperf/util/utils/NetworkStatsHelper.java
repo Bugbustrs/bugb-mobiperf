@@ -6,6 +6,8 @@ import android.app.usage.NetworkStatsManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 
+import java.util.Date;
+
 
 /**
  * Created by Robert Zagórski on 2016-09-09.
@@ -29,13 +31,13 @@ public class NetworkStatsHelper {
         packageUid=uid;
     }
 
-    public long getPackageRxBytesWifi() {
+    public long getPackageRxBytesWifi(long startTime,long endTime) {
         NetworkStats networkStats = null;
         networkStats = networkStatsManager.queryDetailsForUid(
                 ConnectivityManager.TYPE_WIFI,
                 "",
-                0,
-                System.currentTimeMillis(),
+                 startTime,
+                endTime,
                 packageUid);
 
         long rxBytes = 0L;
@@ -48,13 +50,13 @@ public class NetworkStatsHelper {
         return rxBytes;
     }
 
-    public long getPackageTxBytesWifi() {
+    public long getPackageTxBytesWifi(long startTime,long endTime) {
         NetworkStats networkStats = null;
         networkStats = networkStatsManager.queryDetailsForUid(
                 ConnectivityManager.TYPE_WIFI,
                 "",
-                0,
-                System.currentTimeMillis(),
+                startTime,
+                endTime,
                 packageUid);
 
         long txBytes = 0L;

@@ -39,12 +39,14 @@ public class NetworkSummaryCollector implements Runnable {
     @Override
     public void run() {
         Logger.d("Collector Thread has started");
+        long endTime = System.currentTimeMillis();
+        long startTime = endTime-(24*3600*1000); //minus 24 hrs
         List<Package> packageList=getPackagesData();
         JSONArray userSummary = new JSONArray();
         try {
             for (Package pckg : packageList) {
                 String packageName = pckg.getPackageName();
-                DataPayload dataPayload = getBytes(packageName);
+                DataPayload dataPayload = getBytes(packageName,startTime,endTime);
                 //build json here
                 if(!dataPayload.isEmptyPayload()) {
                     JSONObject appData = new JSONObject();
@@ -56,9 +58,9 @@ public class NetworkSummaryCollector implements Runnable {
             }
             JSONObject blob = new JSONObject();
             blob.put("user_name", SpeedometerApp.getCurrentApp().getSelectedAccount());
-            blob.put("Date",new Date());
+            blob.put("Date",endTime);
             blob.put("user_summary",userSummary);
-            Logger.d(blob.get("user_summary").toString());
+            Logger.d(blob.toString());
             //Util.sendResult(blob.toString(),"Network Summary");
         }
         catch (Exception e){
@@ -102,20 +104,20 @@ public class NetworkSummaryCollector implements Runnable {
         return packageList;
     }
 
-    private DataPayload getBytes(String packageName) {
+    private DataPayload getBytes(String packageName,long start,long end) {
         int uid = PackageManagerHelper.getPackageUid(context, packageName);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             NetworkStatsManager networkStatsManager = (NetworkStatsManager) context.getSystemService(Context.NETWORK_STATS_SERVICE);
             NetworkStatsHelper networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid);
-            return fillNetworkStatsPackage(networkStatsHelper);
+            return fillNetworkStatsPackage(networkStatsHelper,start,end);
         }
         return null;
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    private DataPayload fillNetworkStatsPackage(NetworkStatsHelper networkStatsHelper) {
-        long mobileWifiRx = networkStatsHelper.getPackageRxBytesWifi();
-        long mobileWifiTx = networkStatsHelper.getPackageTxBytesWifi();
+    private DataPayload fillNetworkStatsPackage(NetworkStatsHelper networkStatsHelper,long start,long end) {
+        long mobileWifiRx = networkStatsHelper.getPackageRxBytesWifi(start,end);
+        long mobileWifiTx = networkStatsHelper.getPackageTxBytesWifi(start,end);
         return new DataPayload(mobileWifiRx,mobileWifiTx);
     }
 

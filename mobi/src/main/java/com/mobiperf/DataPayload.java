@@ -17,15 +17,8 @@ public class DataPayload {
         return Rx;
     }
 
-    public void setRx(long rx) {
-        Rx = rx;
-    }
-
     public long getTx() {
         return Tx;
     }
 
-    public void setTx(long tx) {
-        Tx = tx;
-    }
 }
