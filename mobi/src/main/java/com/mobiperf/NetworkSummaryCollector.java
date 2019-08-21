@@ -18,6 +18,9 @@ import com.mobiperf.util.utils.NetworkStatsHelper;
 import com.mobiperf.util.utils.PackageManagerHelper;
 import com.mobiperf.util.utils.TrafficStatsHelper;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,7 +36,28 @@ public class NetworkSummaryCollector implements Runnable {
 
     @Override
     public void run() {
-
+        List<Package> packageList=getPackagesData();
+        JSONArray userSummary = new JSONArray();
+        try {
+            for (Package pckg : packageList) {
+                String packageName = pckg.getPackageName();
+                long[] bytes = getBytes(packageName);
+                //build json here
+                JSONObject appData = new JSONObject();
+                appData.put("name", packageName);
+                appData.put("Rx", bytes[0]);
+                appData.put("Tx", bytes[1]);
+                userSummary.put(appData);
+            }
+            JSONObject blob = new JSONObject();
+            blob.put("user_name", SpeedometerApp.getCurrentApp().getSelectedAccount());
+            blob.put("Date",System.currentTimeMillis());
+            blob.put("user_summary",userSummary);
+            System.out.println(blob);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private List<Package> getPackagesData() {
@@ -72,14 +96,14 @@ public class NetworkSummaryCollector implements Runnable {
         return packageList;
     }
 
-    private void fillData(String packageName) {
+    private long[] getBytes(String packageName) {
         int uid = PackageManagerHelper.getPackageUid(context, packageName);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             NetworkStatsManager networkStatsManager = (NetworkStatsManager) context.getSystemService(Context.NETWORK_STATS_SERVICE);
             NetworkStatsHelper networkStatsHelper = new NetworkStatsHelper(networkStatsManager, uid);
-            fillNetworkStatsAll(networkStatsHelper);
-            fillNetworkStatsPackage(uid, networkStatsHelper);
+            return fillNetworkStatsPackage(uid, networkStatsHelper);
         }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -94,11 +118,10 @@ public class NetworkSummaryCollector implements Runnable {
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    private void fillNetworkStatsPackage(int uid, NetworkStatsHelper networkStatsHelper) {
+    private long[] fillNetworkStatsPackage(int uid, NetworkStatsHelper networkStatsHelper) {
         long mobileWifiRx = networkStatsHelper.getPackageRxBytesMobile(context) + networkStatsHelper.getPackageRxBytesWifi();
-       /// do domething ith the number ogf bytes jso download
         long mobileWifiTx = networkStatsHelper.getPackageTxBytesMobile(context) + networkStatsHelper.getPackageTxBytesWifi();
-        // do domething ith the number ogf bytes json upload
+        return new long[]{mobileWifiRx,mobileWifiTx};
     }
 
     private boolean hasPermissionToReadPhoneStats() {
