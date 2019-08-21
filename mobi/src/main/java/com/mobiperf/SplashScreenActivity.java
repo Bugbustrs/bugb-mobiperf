@@ -38,7 +38,6 @@ public class SplashScreenActivity extends Activity {
     this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
     
     TextView version = (TextView)findViewById(R.id.splash_version);
-    
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
       version.setText(pInfo.versionName);
