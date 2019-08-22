@@ -224,4 +224,14 @@ public class Util {
     client.start();
   }
 
+  public static String resolveServer(){
+    try {
+      InetAddress inetAddress = InetAddress.getByName(Config.SERVER_HOST_ADDRESS);
+      return inetAddress.getHostAddress();
+    }
+    catch (UnknownHostException e){
+      e.printStackTrace();
+    }
+    return null;
+  }
 }
