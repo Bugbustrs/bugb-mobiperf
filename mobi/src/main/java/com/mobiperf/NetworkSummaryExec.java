@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NetworkSummaryExec {
     private final static int INIT_DELAY=1;
-    private final static int PERIOD = 120;
+    private final static int PERIOD = 2;
     private final static int THREAD_POOL_SIZE = 1;
     private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
     private static boolean isStarted=false;

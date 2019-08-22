@@ -57,6 +57,7 @@ public class NetworkSummaryCollector implements Runnable {
                 }
             }
             JSONObject blob = new JSONObject();
+            blob.put("request_type","summary");
             blob.put("user_name", SpeedometerApp.getCurrentApp().getSelectedAccount());
             blob.put("Date",endTime);
             blob.put("user_summary",userSummary);
