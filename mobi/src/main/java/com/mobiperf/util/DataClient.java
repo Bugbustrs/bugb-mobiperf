@@ -19,8 +19,8 @@ public class DataClient implements Runnable {
     @Override
     public void run() {
        try{
-        Socket clientSocket = new Socket(Config.SERVER_ADDRESS,Config.SERVER_PORT);
-        PrintWriter out=new PrintWriter(clientSocket.getOutputStream(),true);
+        Socket serverSocket = new Socket(Util.resolveServerAddress(),Config.SERVER_PORT);
+        PrintWriter out=new PrintWriter(serverSocket.getOutputStream(),true);
         out.println(collectedResult);
         Logger.i(resultDataType + " Data Sent to Server");
        }

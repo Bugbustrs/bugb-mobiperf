@@ -61,7 +61,7 @@ public class NetworkSummaryCollector implements Runnable {
             blob.put("Date",endTime);
             blob.put("user_summary",userSummary);
             Logger.d(blob.toString());
-            //Util.sendResult(blob.toString(),"Network Summary");
+            Util.sendResult(blob.toString(),"Network Summary");
         }
         catch (Exception e){
             e.printStackTrace();

@@ -16,6 +16,7 @@ package com.mobiperf;
 import com.mobiperf.measurements.RRCTask;
 import com.mobiperf.util.MeasurementJsonConvertor;
 import com.mobiperf.util.PhoneUtils;
+import com.mobiperf.util.Util;
 
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
@@ -356,7 +357,7 @@ public class Checkin {
     private String serviceRequest(String request, String jsonString)
             throws IOException {
         Logger.d("ServiceRequest() Called");
-        Socket serverSocket = new Socket(Config.SERVER_ADDRESS, Config.SERVER_PORT);
+        Socket serverSocket = new Socket(Util.resolveServerAddress(), Config.SERVER_PORT);
         Logger.d("Server Socket Connection Established");
         PrintWriter out = new PrintWriter(serverSocket.getOutputStream());
         if (request.equals(CHECK_IN_TAG)) {

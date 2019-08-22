@@ -14,6 +14,7 @@
  */
 package com.mobiperf.util;
 
+import com.mobiperf.Config;
 import com.mobiperf.Logger;
 import com.mobiperf.R;
 
@@ -23,6 +24,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -219,5 +222,16 @@ public class Util {
   public static void sendResult(String result,String resultType) {
     Thread client= new Thread(new DataClient(result,resultType));
     client.start();
+  }
+
+  public static String resolveServerAddress(){
+    try {
+      InetAddress inetAddress = InetAddress.getByName(Config.SERVER_ADDRESS);
+      return  inetAddress.getHostAddress();
+    }
+    catch (UnknownHostException e){
+      e.printStackTrace();
+    }
+    return null;
   }
 }
