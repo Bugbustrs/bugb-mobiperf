@@ -59,7 +59,6 @@ public class SystemConsoleActivity extends Activity {
     setContentView(R.layout.console);
     this.consoleView = (ListView) this.findViewById(R.id.systemConsole);
     bindToService();
-
   }
   
   @Override

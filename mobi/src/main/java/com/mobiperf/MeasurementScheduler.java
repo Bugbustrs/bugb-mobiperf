@@ -838,12 +838,15 @@ public class MeasurementScheduler extends Service {
         tasksToAdd.add(newTask);
       } else {
         // check for changes. If any parameter changes, it counts as a change.
+        if (!currentSchedule.get(newKey).getDescription()
+            .equals(newTask.getDescription())) {
           // If there's a change, replace the task with the new task from the server
           keysToRemove.add(newKey);
           tasksToAdd.add(newTask);
         }
         // We've seen the task
         missingKeys.remove(newKey);
+      }
     }
 
     // scheduleKeys now contain all keys that do not exist
