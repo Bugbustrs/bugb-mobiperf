@@ -160,6 +160,7 @@ public class SpeedometerPreferenceFragment extends PreferenceFragmentCompat {
         // The scheduler has a receiver monitoring this intent to get the update.
         // TODO(Wenjie): Only broadcast update intent when there is real change in the settings.
         if (getContext() != null)
-            getContext().sendBroadcast(new UpdateIntent("", UpdateIntent.PREFERENCE_ACTION));
+            return;
+           // getContext().sendBroadcast(new UpdateIntent("", UpdateIntent.PREFERENCE_ACTION));
     }
 }

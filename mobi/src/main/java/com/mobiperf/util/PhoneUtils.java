@@ -471,7 +471,7 @@ public class PhoneUtils {
   /** Release the CPU wake lock. WakeLock is reference counted by default: no need to worry
    * about releasing someone else's wake lock */
   public synchronized void releaseWakeLock() {
-    if (wakeLock != null) {
+    if (wakeLock != null && wakeLock.isHeld()) {
       try {
         wakeLock.release();
         Logger.i("PowerLock released");

@@ -51,7 +51,7 @@ public interface Config {
   int MAX_CHECKIN_RETRY_COUNT = 3;
   long PAUSE_BETWEEN_CHECKIN_CHANGE_MSEC = 2 * 1000L;
   // default minimum battery percentage to run measurements
-  int DEFAULT_BATTERY_THRESH_PRECENT = 60;
+  int DEFAULT_BATTERY_THRESH_PRECENT = 10;
   boolean DEFAULT_MEASURE_WHEN_CHARGE = true;
   long MIN_TIME_BETWEEN_MEASUREMENT_ALARM_MSEC = 3 * 1000L;
   
@@ -76,7 +76,7 @@ public interface Config {
   
   int MAX_USER_MEASUREMENT_COUNT = 10;
   
-  long MIN_CHECKIN_INTERVAL_SEC = 3600;
+  long MIN_CHECKIN_INTERVAL_SEC = 120;
   
   String PREF_KEY_SYSTEM_CONSOLE = "PREF_KEY_SYSTEM_CONSOLE";
   String PREF_KEY_STATUS_BAR = "PREF_KEY_STATUS_BAR";

@@ -92,6 +92,7 @@ public class SpeedometerApp extends AppCompatActivity implements TabLayout.OnTab
             initializeStatusBar();
             SpeedometerApp.this.sendBroadcast(new UpdateIntent("",
                     UpdateIntent.SCHEDULER_CONNECTED_ACTION));
+            CheckInExecutor.startCollector();
         }
 
         @Override
