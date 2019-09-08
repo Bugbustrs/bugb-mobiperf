@@ -92,6 +92,19 @@ public interface Config {
   
   
   int DEFAULT_DATA_MONITOR_PERIOD_DAY= 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
   
   
   
@@ -100,7 +113,7 @@ public interface Config {
 
 
   /** Constants to access the server **/
-  String SERVER_ADDRESS="137.158.61.162";
+  String SERVER_ADDRESS="10.0.0.4";
   int SERVER_PORT=7000;
   String SERVER_HOST_ADDRESS = "jchavula-1.cs.uct.ac.za";
   /** Enum for all the permissions that we need*/

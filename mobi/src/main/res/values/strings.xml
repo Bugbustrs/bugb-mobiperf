@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MobiPerf</string>
+    <string name="app_name">InethiPerf</string>
     <string name="user_agent">Linux; Android</string>
     <string name="default_user_agent">"MobiPerf-2.0 (Linux; Android)"</string>
     <string name="ping_executable">ping</string>

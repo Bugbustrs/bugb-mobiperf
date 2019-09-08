@@ -125,7 +125,7 @@ public class SpeedometerPreferenceFragment extends PreferenceFragmentCompat {
         if (selectedDataLimitAccount != null) {
             dataLimitLp.setValue(selectedDataLimitAccount);
         } else {
-            dataLimitLp.setValue("250 MB");
+            dataLimitLp.setValue("Unlimited");
         }
 
         /**

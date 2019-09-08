@@ -477,6 +477,7 @@ public class MeasurementScheduler extends Service {
        * application. So don't worry about setting isSchedulerStarted to false.
        */
       isSchedulerStarted = true;
+
     }
     return START_STICKY;
   }

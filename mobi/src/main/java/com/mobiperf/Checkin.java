@@ -119,22 +119,22 @@ public class Checkin {
         Logger.i("Checkin.checkin() called");
         boolean checkinSuccess = false;
         try {
-            JSONObject status = new JSONObject();
-            DeviceInfo info = phoneUtils.getDeviceInfo();
-            // TODO(Wenjie): There is duplicated info here, such as device ID.
-            status.put("id", info.deviceId);
-            status.put("manufacturer", info.manufacturer);
-            status.put("model", info.model);
-            status.put("os", info.os);
-            status
-                    .put("properties", MeasurementJsonConvertor.encodeToJson(phoneUtils
-                            .getDeviceProperty()));
-            resourceCapManager.updateDataUsage(ResourceCapManager.PHONEUTILCOST);
-
-            Logger.d(status.toString());
+//            JSONObject status = new JSONObject();
+//            DeviceInfo info = phoneUtils.getDeviceInfo();
+//            // TODO(Wenjie): There is duplicated info here, such as device ID.
+//            status.put("id", info.deviceId);
+//            status.put("manufacturer", info.manufacturer);
+//            status.put("model", info.model);
+//            status.put("os", info.os);
+//            status
+//                    .put("properties", MeasurementJsonConvertor.encodeToJson(phoneUtils
+//                            .getDeviceProperty()));
+//            resourceCapManager.updateDataUsage(ResourceCapManager.PHONEUTILCOST);
+//
+//            Logger.d(status.toString());
             sendStringMsg("Checking in");
 
-            String result = serviceRequest(CHECK_IN_TAG, status.toString());
+            String result = serviceRequest(CHECK_IN_TAG, "");
             Logger.d("Checkin result: " + result);
             resourceCapManager.updateDataUsage(result.length());
 
